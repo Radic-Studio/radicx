@@ -1,0 +1,48 @@
+name: M6 Preview
+
+on:
+  pull_request:
+    branches: [staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m6-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    if: github.head_ref == 'feat/m6-study-engine'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Build deterministic current-head assets
+        run: npm run build
+
+      - name: Validate Netlify Deploy Preview integrity and answer-key safety
+        shell: bash
+        env:
+          M6_PREVIEW_URL: https://deploy-preview-${{ github.event.pull_request.number }}--radicx.netlify.app
+        run: |
+          for attempt in {1..30}; do
+            echo "M6 Deploy Preview validation attempt $attempt"
+            if node scripts/m6-preview-smoke.mjs; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "M6 Deploy Preview did not pass validation within the allowed window."
+          exit 1
