@@ -6,11 +6,14 @@
   NODE_VERSION = "22"
   NPM_FLAGS = "--ignore-scripts"
 
+# GitHub CI owns the full verification suite, including real Chromium checks.
+# Netlify's job is to produce and host the same deterministic production build
+# so Deploy Preview and branch-deploy validation can run against a real URL.
 [context.deploy-preview]
-  command = "npm run verify"
+  command = "npm run build"
 
 [context.branch-deploy]
-  command = "npm run verify"
+  command = "npm run build"
 
 [[headers]]
   for = "/*"
