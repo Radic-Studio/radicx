@@ -1,6 +1,6 @@
 # M2 Hosted Staging Validation
 
-Status: IN PROGRESS
+Status: ACCEPTED
 
 ## Project
 
@@ -12,7 +12,7 @@ Status: IN PROGRESS
 - Production project: not created
 - Data: synthetic M2 fixtures only
 
-The manually created project landed in `eu-west-1`, rather than the originally proposed London `eu-west-2`. This remains within the approved European-region strategy. No latency claim is made; Nigerian network/device benchmarking remains a later acceptance activity.
+The manually created project landed in `eu-west-1`, rather than the originally proposed London `eu-west-2`. This remains within the approved European-region strategy. No unsupported latency claim is made; Nigerian network/device benchmarking remains a later acceptance activity.
 
 ## Hosted migration and data validation
 
@@ -23,8 +23,9 @@ Applied from the GitHub M2 branch in order:
 3. `m2_integrity_indexes_storage`
 4. `m2_published_question_immutability`
 5. `m2_advisor_indexes`
+6. `m2_private_table_rls`
 
-The synthetic seed is loaded. Hosted schema inspection confirms all approved public M2 tables exist with RLS enabled. The private `question_keys` and `staff_roles` tables exist in the non-exposed `private` schema and have no grants to `anon` or `authenticated`.
+The synthetic seed is loaded. Hosted schema inspection confirms all approved public M2 tables exist with RLS enabled. `private.question_keys` and `private.staff_roles` exist in the non-exposed `private` schema, have RLS enabled, have no browser policies, and remain unavailable to `anon` and `authenticated`.
 
 ## Hosted authorization validation
 
@@ -49,31 +50,51 @@ Three hosted buckets exist and are private:
 - `source-evidence`: 25 MiB; image/PDF allow-list
 - `admin-uploads`: 25 MiB; image/PDF/CSV/XLSX allow-list
 
-`question-media` has authenticated read policy foundation. No browser policies exist for `source-evidence` or `admin-uploads`.
+`question-media` has authenticated-read policy foundation. No browser policies exist for `source-evidence` or `admin-uploads`.
+
+## Hosted Auth dashboard validation
+
+The Supabase Dashboard settings were reviewed interactively against the M2 Auth foundation:
+
+- new user signup: enabled;
+- anonymous sign-in: disabled;
+- email provider: enabled;
+- email confirmation: enabled;
+- secure email change: enabled;
+- secure password change: enabled during guided validation;
+- phone provider/signup: disabled;
+- Google provider: disabled/unconfigured for now, with readiness preserved for the later authentication milestone;
+- TOTP (Authenticator App) MFA: enabled;
+- AAL1 session-duration limiting: enabled;
+- SMS MFA: disabled;
+- Site URL: `http://localhost:3000` for the current pre-auth-UI stage;
+- redirect allow-list: empty, with no unsafe wildcard;
+- CAPTCHA: available/configurable but intentionally disabled in M2 because provider keys and the real auth UI are not yet being activated;
+- leaked-password screening: disabled because the Dashboard marks it as Pro-only; no paid-plan upgrade is introduced by M2;
+- custom SMTP: deferred to the later email/commerce milestone.
+
+This satisfies M2's Auth configuration/readiness requirement without prematurely implementing the M5 student account lifecycle or M10 production email configuration.
 
 ## Advisor review
 
 ### Security Advisor
 
-Supabase Security Advisor reports one informational item: `public.question_sources` has RLS enabled without a policy. This is intentional in M2 because the table has no browser grant; source/provenance access is reserved for later trusted workflows.
+Final review on 2026-09-04 reports only three INFO notices for `RLS Enabled No Policy`:
 
-A separate schema inspection surfaced a defense-in-depth warning that RLS is disabled on the two private tables. They are currently protected by all three controls below:
+- `private.question_keys`;
+- `private.staff_roles`;
+- `public.question_sources`.
 
-1. `private` is not an exposed Data API schema;
-2. schema/table privileges are revoked from `anon` and `authenticated`;
-3. hosted tests confirm browser-role access is denied.
+These are intentional fail-closed states. Browser access is not granted to these tables in M2. There are no critical/high M2 security findings.
 
-Enabling RLS on `private.question_keys` and `private.staff_roles` with no browser policies would add a fourth fail-closed layer. Because the Supabase inspection tool explicitly requires user approval before applying that remediation, it remains pending a specific approval and M2 is not accepted yet.
+Reference: https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy
 
 ### Performance Advisor
 
-The first performance review found missing covering indexes for foreign keys. Migration `m2_advisor_indexes` added those indexes. A second review no longer reports unindexed foreign keys. Remaining `unused_index` informational notices are expected on a newly provisioned staging database with almost no workload and are not a reason to remove the M2 access-path indexes.
+The first performance review found missing covering indexes for foreign keys. Migration `m2_advisor_indexes` added those indexes. Final review no longer reports unindexed foreign keys. Remaining notices are INFO-level `unused_index` findings on a fresh staging database with almost no representative workload. The indexes are retained because they cover known ownership, relationship, review and content access paths and should be reconsidered only after representative workload evidence exists.
 
-## Remaining hosted acceptance work
+Reference: https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index
 
-- obtain user approval on private-table RLS defense-in-depth remediation;
-- apply/version-control that remediation if approved;
-- rerun Security Advisor;
-- verify hosted Auth dashboard settings that are not exposed by the current connector: email/password enabled, email confirmation enabled, phone disabled, recovery/redirect configuration ready, Google/CAPTCHA readiness documented;
-- complete final CI/regression rerun and update M2 acceptance record;
-- do not begin M3 until M2 is accepted.
+## Acceptance result
+
+Hosted staging validation is complete. The M2 security, authorization, storage, Auth-readiness, advisor and regression gates have no remaining blocking defect. M2 is accepted subject to ordinary protected integration into `staging`; M3 must not be included in this PR.
