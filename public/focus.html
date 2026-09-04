@@ -1,10 +1,92 @@
 <!doctype html>
 <html lang="en">
-  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#FFFFFF" /><meta name="robots" content="noindex,nofollow" /><title>Focus shell · RadicX</title><link rel="stylesheet" href="/assets/styles.css" /></head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Study question · RadicX</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
   <body data-auth-state="loading">
-    <a class="skip-link" href="#focus-main">Skip to question area</a><div class="m5-auth-loading" role="status" aria-live="polite"><span class="radic-supporting-text">Restoring your student session…</span></div>
-    <div class="focus-shell m5-protected"><header class="focus-header"><div class="focus-header__inner"><a class="radic-button radic-button--ghost" href="/student.html">← Leave focus mode</a><span class="radic-sync-state radic-sync-state--success" role="status"><span class="radic-status-dot"></span>Authenticated</span></div></header>
-      <main class="focus-main" id="focus-main"><div><p class="radic-eyebrow">Focus Mode shell</p><p class="radic-supporting-text">Protected access is active in M5. Question delivery, confidence and feedback remain M6 scope.</p></div><section class="focus-question-stage" aria-labelledby="focus-question-title"><div><span class="radic-badge radic-badge--neutral">Study Engine pending</span><h1 class="radic-question-text" id="focus-question-title" style="margin-top:16px;">Study question content will appear here when M6 is implemented.</h1></div><div class="radic-stack" aria-label="Answer option placeholders"><div class="answer-placeholder"><span class="answer-placeholder__key">A</span><span class="radic-skeleton" style="width:72%;height:18px;" aria-hidden="true"></span></div><div class="answer-placeholder"><span class="answer-placeholder__key">B</span><span class="radic-skeleton" style="width:84%;height:18px;" aria-hidden="true"></span></div><div class="answer-placeholder"><span class="answer-placeholder__key">C</span><span class="radic-skeleton" style="width:64%;height:18px;" aria-hidden="true"></span></div><div class="answer-placeholder"><span class="answer-placeholder__key">D</span><span class="radic-skeleton" style="width:78%;height:18px;" aria-hidden="true"></span></div></div></section></main><footer class="focus-footer"><div class="focus-footer__inner"><button class="radic-button radic-button--secondary" type="button" disabled>Previous</button><div class="radic-cluster"><button class="radic-button radic-button--ghost" type="button" disabled>Bookmark</button><button class="radic-button radic-button--primary" type="button" disabled>Continue</button></div></div></footer></div>
-    <script src="/assets/runtime-config.js"></script><script type="module" src="/assets/m5/protected-shell.js"></script>
+    <a class="skip-link" href="#focus-main">Skip to question area</a>
+    <div class="m5-auth-loading" role="status" aria-live="polite"><span class="radic-supporting-text">Restoring your Study session…</span></div>
+    <div class="focus-shell m5-protected">
+      <header class="focus-header">
+        <div class="focus-header__inner">
+          <a class="radic-button radic-button--ghost" href="/study.html">← Leave Study</a>
+          <span class="radic-sync-state radic-sync-state--success" id="study-sync-state" role="status" aria-live="polite"><span class="radic-status-dot" aria-hidden="true"></span>Online</span>
+        </div>
+      </header>
+      <main class="focus-main" id="focus-main">
+        <section class="m6-question-context" aria-label="Study progress">
+          <div>
+            <p class="radic-eyebrow" id="study-mode-label">Study</p>
+            <p class="m6-question-meta" id="question-context">Loading question…</p>
+          </div>
+          <div class="m6-progress-wrap">
+            <span class="radic-supporting-text" id="question-progress-label">Question 1</span>
+            <div class="radic-progress" id="question-progress" role="progressbar" aria-label="Study question progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="radic-progress__bar" id="question-progress-bar"></div></div>
+          </div>
+        </section>
+
+        <section class="focus-question-stage m6-question-stage" aria-labelledby="focus-question-title">
+          <h1 class="radic-question-text" id="focus-question-title">Loading your cached Study question…</h1>
+          <fieldset class="m6-answer-group" id="answer-options">
+            <legend class="visually-hidden">Choose one answer</legend>
+          </fieldset>
+
+          <fieldset class="m6-confidence" id="confidence-group">
+            <legend>How confident are you?</legend>
+            <p class="radic-supporting-text">Choose a confidence level before checking your answer.</p>
+            <div class="m6-confidence-options">
+              <label><input type="radio" name="confidence" value="1" /><span>Guessing</span></label>
+              <label><input type="radio" name="confidence" value="3" /><span>Unsure</span></label>
+              <label><input type="radio" name="confidence" value="5" /><span>Confident</span></label>
+            </div>
+          </fieldset>
+
+          <div class="m6-feedback" id="study-feedback" role="status" aria-live="polite" hidden></div>
+          <div class="m6-study-message" id="focus-message" role="status" aria-live="polite" hidden></div>
+        </section>
+
+        <section class="m6-study-summary" id="study-summary" hidden aria-labelledby="study-summary-title">
+          <p class="radic-eyebrow">Study complete</p>
+          <h1 id="study-summary-title">Session summary</h1>
+          <dl class="m6-summary-grid">
+            <div><dt>Answered</dt><dd id="summary-answered">0</dd></div>
+            <div><dt>Correct</dt><dd id="summary-correct">0</dd></div>
+            <div><dt>Incorrect</dt><dd id="summary-incorrect">0</dd></div>
+            <div><dt>Completion</dt><dd id="summary-completion">0%</dd></div>
+            <div><dt>Duration</dt><dd id="summary-duration">—</dd></div>
+          </dl>
+          <a class="radic-button radic-button--primary" href="/study.html">Back to Study</a>
+        </section>
+      </main>
+      <footer class="focus-footer" id="study-actions">
+        <div class="focus-footer__inner m6-focus-actions">
+          <button class="radic-button radic-button--secondary" type="button" id="previous-question" disabled>Previous</button>
+          <div class="radic-cluster m6-question-tools">
+            <button class="radic-button radic-button--ghost" type="button" id="report-question">Report</button>
+            <button class="radic-button radic-button--ghost" type="button" id="bookmark-question" aria-pressed="false">Bookmark</button>
+            <button class="radic-button radic-button--primary" type="button" id="submit-answer" disabled>Check Answer</button>
+            <button class="radic-button radic-button--primary" type="button" id="next-question" hidden>Next Question</button>
+            <button class="radic-button radic-button--secondary" type="button" id="retry-sync" hidden>Retry sync</button>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <dialog class="radic-dialog m6-report-dialog" id="report-dialog" aria-labelledby="report-title">
+      <form method="dialog" class="radic-dialog__body" id="report-form">
+        <div class="radic-dialog__header"><h2 id="report-title">Report a question</h2><button class="radic-button radic-button--ghost" type="button" id="close-report">Close</button></div>
+        <label class="radic-field" for="report-category"><span class="radic-label">Issue</span><select class="radic-select" id="report-category" required><option value="incorrect">Incorrect answer</option><option value="ambiguous">Ambiguous</option><option value="outdated">Outdated</option><option value="typo">Typo</option><option value="other">Other</option></select></label>
+        <label class="radic-field" for="report-details"><span class="radic-label">Details (optional)</span><textarea class="radic-textarea" id="report-details" maxlength="2000" rows="4" placeholder="Briefly describe the issue."></textarea></label>
+        <div class="radic-cluster"><button class="radic-button radic-button--primary" type="submit" id="send-report">Send report</button><button class="radic-button radic-button--secondary" type="button" id="cancel-report">Cancel</button></div>
+      </form>
+    </dialog>
+
+    <script src="/assets/runtime-config.js"></script>
+    <script type="module" src="/assets/m6/study-session.js"></script>
   </body>
 </html>
