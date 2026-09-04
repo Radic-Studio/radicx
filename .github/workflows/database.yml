@@ -33,6 +33,9 @@ jobs:
       - name: Reset database from migrations and seed
         run: supabase db reset
 
+      - name: Seed declared Storage buckets
+        run: supabase seed buckets
+
       - name: Database lint
         run: supabase db lint --local --level warning
 
