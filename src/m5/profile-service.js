@@ -62,7 +62,7 @@ export async function getProgramme(client, programmeId) {
 export async function discoverResumableSession(client) {
   const { data, error } = await client
     .from('sessions')
-    .select('id,mode,status,current_question_id,started_at,last_activity_at')
+    .select('id,mode,status,study_kind,current_question_id,current_position,target_question_count,device_version,started_at,last_activity_at')
     .in('status', ['created', 'active'])
     .order('last_activity_at', { ascending: false })
     .limit(1)
