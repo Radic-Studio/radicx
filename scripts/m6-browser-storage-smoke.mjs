@@ -1,4 +1,5 @@
-import { execFileSync } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
+import { createServer } from 'node:http';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -15,7 +16,8 @@ for (const candidate of chromeCandidates) {
 }
 if (!chrome) throw new Error('M6 browser storage smoke requires Chromium/Chrome on the CI runner.');
 
-const fixture = path.resolve('dist/m6-storage-smoke.html');
+const distRoot = path.resolve('dist');
+const fixture = path.join(distRoot, 'm6-storage-smoke.html');
 const profileDir = path.resolve('.m6-chrome-profile');
 await rm(profileDir, { recursive: true, force: true });
 
@@ -31,6 +33,7 @@ import {
   getCachedStudyPackage,
   listAnswerOutbox,
   listBookmarkOutbox,
+  openStudyDb,
   queueAnswerOperation,
   queueBookmarkOperation,
   setLocalSelection
@@ -90,17 +93,31 @@ try {
   const cached = await getCachedStudyPackage(userId, sessionId);
   const answers = await listAnswerOutbox(userId, sessionId);
   const bookmarks = await listBookmarkOutbox(userId, sessionId);
-  const databases = indexedDB.databases ? await indexedDB.databases() : [];
-  const noAnswerKey = !JSON.stringify(cached).includes('correct_option') && !JSON.stringify(cached).includes('explanation_private');
+  const db = await openStudyDb();
+  const actualStores = Array.from(db.objectStoreNames).sort();
+  db.close();
+  const expectedStores = [...STUDY_DB_STORES].sort();
+  const storesMatch = actualStores.length === expectedStores.length
+    && expectedStores.every((name, index) => actualStores[index] === name);
+  const serializedWorkingState = JSON.stringify({ cached, answers, bookmarks });
+  const noAnswerKey = !serializedWorkingState.includes('correct_option')
+    && !serializedWorkingState.includes('explanation_private')
+    && !serializedWorkingState.includes('private.question_keys');
   const pass = cached?.questions?.length === 1
     && cached?.localSession?.items?.['1']?.selectedOption === 2
     && cached?.localSession?.items?.['1']?.confidence === 3
     && answers.length === 1
+    && answers[0]?.selectedOption === 2
+    && answers[0]?.confidence === 3
     && bookmarks.length === 1
-    && noAnswerKey
-    && STUDY_DB_STORES.length === 5
-    && (!indexedDB.databases || databases.some((db) => db.name === 'radicx-study'));
+    && bookmarks[0]?.bookmarked === true
+    && storesMatch
+    && noAnswerKey;
+
   document.documentElement.dataset.m6Storage = pass ? 'pass' : 'fail';
+  if (!pass) {
+    document.body.textContent = JSON.stringify({ actualStores, expectedStores, cached, answers, bookmarks, noAnswerKey });
+  }
 } catch (error) {
   document.documentElement.dataset.m6Storage = 'error';
   document.body.textContent = String(error?.stack ?? error);
@@ -108,25 +125,91 @@ try {
 </script>
 </body></html>`;
 
-await writeFile(fixture, html, 'utf8');
-try {
-  const output = execFileSync(chrome, [
-    '--headless=new',
-    '--disable-gpu',
-    '--no-sandbox',
-    '--allow-file-access-from-files',
-    `--user-data-dir=${profileDir}`,
-    '--virtual-time-budget=2500',
-    '--dump-dom',
-    `file://${fixture}`
-  ], { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
+function contentType(filePath) {
+  if (filePath.endsWith('.html')) return 'text/html; charset=utf-8';
+  if (filePath.endsWith('.js') || filePath.endsWith('.mjs')) return 'text/javascript; charset=utf-8';
+  if (filePath.endsWith('.css')) return 'text/css; charset=utf-8';
+  if (filePath.endsWith('.json')) return 'application/json; charset=utf-8';
+  return 'application/octet-stream';
+}
 
-  if (!/data-m6-storage="pass"/.test(output)) {
-    console.error(output);
+async function runChrome(url) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(chrome, [
+      '--headless=new',
+      '--disable-gpu',
+      '--no-sandbox',
+      `--user-data-dir=${profileDir}`,
+      '--virtual-time-budget=4000',
+      '--dump-dom',
+      url
+    ], { stdio: ['ignore', 'pipe', 'pipe'] });
+
+    let stdout = '';
+    let stderr = '';
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error('M6 browser storage smoke timed out waiting for Chromium.'));
+    }, 15000);
+
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', (chunk) => { stdout += chunk; });
+    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.on('error', (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+    child.on('close', (code) => {
+      clearTimeout(timeout);
+      if (code !== 0) {
+        reject(new Error(`Chromium exited with code ${code}.\n${stderr}`));
+        return;
+      }
+      resolve({ stdout, stderr });
+    });
+  });
+}
+
+await writeFile(fixture, html, 'utf8');
+let server;
+try {
+  server = createServer(async (request, response) => {
+    try {
+      const requestUrl = new URL(request.url ?? '/', 'http://127.0.0.1');
+      const relativePath = decodeURIComponent(requestUrl.pathname).replace(/^\/+/, '') || 'm6-storage-smoke.html';
+      const filePath = path.resolve(distRoot, relativePath);
+      if (filePath !== distRoot && !filePath.startsWith(`${distRoot}${path.sep}`)) {
+        response.writeHead(403).end('Forbidden');
+        return;
+      }
+      const body = await readFile(filePath);
+      response.writeHead(200, {
+        'Content-Type': contentType(filePath),
+        'Cache-Control': 'no-store'
+      });
+      response.end(body);
+    } catch {
+      response.writeHead(404).end('Not found');
+    }
+  });
+
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const address = server.address();
+  if (!address || typeof address === 'string') throw new Error('M6 browser storage smoke could not determine its loopback port.');
+
+  const { stdout, stderr } = await runChrome(`http://127.0.0.1:${address.port}/m6-storage-smoke.html`);
+  if (!/data-m6-storage="pass"/.test(stdout)) {
+    console.error(stdout);
+    if (stderr) console.error(stderr);
     throw new Error('M6 IndexedDB persistence/outbox browser smoke failed.');
   }
-  console.log('M6 real-browser IndexedDB persistence/outbox smoke passed.');
+  console.log('M6 real-browser IndexedDB persistence/outbox smoke passed on a loopback HTTP origin.');
 } finally {
+  if (server) await new Promise((resolve) => server.close(resolve));
   await rm(fixture, { force: true });
   await rm(profileDir, { recursive: true, force: true });
 }
