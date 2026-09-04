@@ -32,3 +32,33 @@ jobs:
 
       - name: Verify
         run: npm run verify
+
+      - name: Smoke-test Netlify branch deployment
+        if: github.event_name == 'push' && (github.ref_name == 'staging' || github.ref_name == 'main')
+        shell: bash
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "$REF_NAME" == "staging" ]]; then
+            url="https://staging--radicx.netlify.app/"
+          else
+            url="https://radicx.netlify.app/"
+          fi
+
+          echo "Waiting for Netlify deployment: $url"
+
+          for attempt in {1..30}; do
+            status="$(curl --connect-timeout 10 --max-time 20 -sS -o /dev/null -w '%{http_code}' "$url" || true)"
+            case "$status" in
+              200|204|301|302|303|307|308|401|403)
+                echo "Netlify deployment responded with HTTP $status on attempt $attempt."
+                exit 0
+                ;;
+            esac
+
+            echo "Attempt $attempt returned HTTP ${status:-000}; retrying in 10 seconds."
+            sleep 10
+          done
+
+          echo "Netlify deployment did not become reachable within the validation window."
+          exit 1
