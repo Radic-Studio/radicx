@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(30);
+select plan(33);
 
 create function pg_temp.capture_sqlstate(statement text)
 returns text
