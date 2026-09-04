@@ -4,9 +4,9 @@ Date: 2026-09-04
 
 ## Status
 
-**READY FOR PROTECTED STAGING MERGE — FINAL ACCEPTANCE PENDING POST-MERGE REGRESSION**
+**PASS — ACCEPTED**
 
-The M4 implementation, corrective hardening, automated CI, Database CI, Netlify Deploy Preview, hosted Supabase migration validation, answer-key isolation checks, authorization contract validation and advisor review have passed the pre-merge acceptance gates. Final `PASS — ACCEPTED` is contingent only on merging the protected M4 pull request into `staging` and completing the post-merge staging regression checks.
+The M4 implementation, corrective hardening, automated CI, Database CI, Netlify Deploy Preview, hosted Supabase migration validation, answer-key isolation checks, authorization contract validation, advisor review, protected `staging` merge and post-merge staging regression have all passed. M4 is accepted and may be closed.
 
 M5 has not started.
 
@@ -19,13 +19,19 @@ No M5 authentication/onboarding implementation and no Study, Review, Mock Exam, 
 ## GitHub evidence
 
 - Feature branch: `feat/m4-question-intelligence-admin`
-- Pull request: `#18 — M4: Question Intelligence & Admin`
+- Implementation pull request: `#18 — M4: Question Intelligence & Admin`
 - Accepted M3 staging baseline: `81f222ae21b8c1e9e2917b77cb010a43854666fa`
-- Pre-acceptance validated M4 head before this record: `c18812515d766e7e64c20775cb43c3fd18918722`
-- CI #65: PASS
-- Database #42 attempt 2: PASS
-- Database #42 attempt 1 failed only because the hosted GitHub runner could not bind local Supabase port 54322; the same unchanged M4 head was rerun after the runner conflict cleared and completed successfully.
-- Netlify Deploy Preview for PR #18: `https://deploy-preview-18--radicx.netlify.app` — READY
+- Pre-acceptance validated M4 head: `c18812515d766e7e64c20775cb43c3fd18918722`
+- Pre-merge acceptance-record head: `42dcc675e915faf04ab6067d598b590e51748641`
+- Implementation merge commit into `staging`: `760963958068857b3ae183a04eb097157cfa7a78`
+- Pre-merge CI #66: PASS
+- Pre-merge Database #43: PASS
+- Netlify Deploy Preview for PR #18: `https://deploy-preview-18--radicx.netlify.app` — PASS
+- Post-merge staging CI #67: PASS
+- Post-merge staging Database #44: PASS
+- Post-merge staging Netlify branch deployment smoke: PASS
+
+An earlier Database #42 first attempt failed because its hosted runner could not bind the local Supabase port 54322. The exact unchanged M4 head was rerun after the runner conflict cleared and passed all database steps. This was an infrastructure-runner conflict, not an M4 code or migration defect.
 
 ## Migrations
 
@@ -83,7 +89,7 @@ Hosted validation confirms:
 
 Hosted validation identified PostgreSQL's default `PUBLIC EXECUTE` privilege on newly created security-definer functions. Although the internal `private.require_staff()` gate already rejected unauthorized callers, M4 was hardened rather than relying on that default grant.
 
-`20260904090400_m4_admin_execute_lockdown.sql` now revokes execution from `PUBLIC` and `anon` for all M4 `admin_*` RPCs and the content-role helper RPCs, while retaining explicit `authenticated` grants. Hosted verification after the migration reports:
+`20260904090400_m4_admin_execute_lockdown.sql` revokes execution from `PUBLIC` and `anon` for all M4 `admin_*` RPCs and the content-role helper RPCs, while retaining explicit `authenticated` grants. Hosted verification after the migration reports:
 
 - anonymous-executable M4 admin RPC count: `0`;
 - authenticated M4 admin RPCs missing required execute permission: `0`;
@@ -122,6 +128,8 @@ M4 database coverage includes:
 
 The earlier pgTAP plan mismatch was corrected from 30 to 33 assertions. The correction changed only the declared test plan; the individual M4 assertions had already passed.
 
+The final pre-merge acceptance-record commit passed CI #66 and Database #43. The implementation merge commit `760963958068857b3ae183a04eb097157cfa7a78` then passed staging CI #67 and Database #44, including database reset, Storage seed, database lint, pgTAP, generated types and artifact upload.
+
 ## Hosted Supabase validation
 
 PASS on project `bhcmfqabwvjawengpxvs` (`RadicX Staging`).
@@ -140,19 +148,19 @@ Verified after hosted migration application:
 
 ## Supabase Security Advisor
 
-Reviewed after hosted M4 migration and hardening.
+PASS with documented intentional notices.
 
-No security ERROR/FATAL finding blocks M4.
+No Security Advisor ERROR/FATAL finding blocks M4.
 
 The remaining `rls_enabled_no_policy` INFO notices apply to intentionally locked deny-by-default tables such as `private.question_keys`, M4 private governance/import/audit tables, `private.staff_roles`, and the existing controlled `public.question_sources` surface. Direct browser privileges are revoked, so adding permissive row policies would weaken the intended boundary rather than improve it.
 
 The Advisor also reports `authenticated_security_definer_function_executable` WARN notices for the intentionally browser-callable M4 staff RPCs. These are accepted by design because the RPC layer is the controlled privileged boundary: each administrative RPC uses a fixed empty `search_path`, is unavailable to `anon`, and calls `private.require_staff()` to require an authenticated AAL2 session plus an authorized role from `private.staff_roles` before privileged work. Hosted transaction validation confirms that forged metadata and AAL1 sessions do not pass this boundary.
 
-These findings are documented/accepted architecture signals, not unresolved authorization defects.
+These findings are documented architecture signals, not unresolved authorization defects.
 
 ## Supabase Performance Advisor
 
-Reviewed after hosted M4 migration.
+PASS.
 
 The initial M4 advisor pass identified five unindexed foreign keys. M4 added `20260904090500_m4_advisor_indexes.sql` to cover:
 
@@ -164,21 +172,21 @@ The initial M4 advisor pass identified five unindexed foreign keys. M4 added `20
 
 The post-fix Advisor no longer reports `unindexed_foreign_keys` for M4. Remaining findings are `unused_index` INFO notices on a fresh staging database. Those indexes support declared foreign-key, governance, content-selection and later-workload query paths; no index is removed before representative workload evidence exists.
 
-## Netlify
+## Netlify / staging validation
 
-PASS pre-merge.
+PASS.
 
-PR #18 Deploy Preview is ready at:
+PR #18 Deploy Preview was green at:
 
 `https://deploy-preview-18--radicx.netlify.app`
 
-The Admin surface is built within the M3 design system and does not introduce a second frontend framework or later-milestone student business logic.
+After the protected merge, staging CI #67 also completed its `Smoke-test Netlify branch deployment` step successfully. The Admin surface remains within the M3 design system and does not introduce a second frontend framework or later-milestone student business logic.
 
 ## M2 / M3 regression
 
-PASS in pre-merge CI and Database CI.
+PASS.
 
-Database CI reconstructs the complete database from the accepted M2 migrations through all M4 migrations, executes the existing M2 tests plus M4 tests, lints the database, seeds Storage declarations and regenerates types. Application CI continues to run the M3 accessibility/build/bundle gates.
+Database CI reconstructs the complete database from the accepted M2 migrations through all M4 migrations, executes the existing M2 tests plus M4 tests, lints the database, seeds Storage declarations and regenerates types. Application CI continues to run the M3 accessibility/build/bundle gates. Both the final pre-merge and post-merge staging regression runs passed.
 
 ## Files / areas changed
 
@@ -200,7 +208,7 @@ Primary M4 areas:
 - `docs/engineering/m4-acceptance.md`
 - package/build documentation metadata changed as recorded in PR #18.
 
-## Acceptance criteria status before merge
+## Acceptance criteria status
 
 | Criterion | Status |
 | --- | --- |
@@ -227,15 +235,17 @@ Primary M4 areas:
 | Hosted Supabase migration validation | PASS |
 | Security Advisor review | PASS with documented intentional INFO/WARN notices |
 | Performance Advisor review | PASS; M4 unindexed FKs corrected |
+| Protected staging merge | PASS |
+| Post-merge staging CI | PASS |
+| Post-merge staging Database CI | PASS |
+| Post-merge Netlify branch smoke | PASS |
 | No M5 implementation | PASS |
-| Protected staging merge | PENDING |
-| Post-merge staging regression | PENDING |
 
 ## Unresolved issues
 
-No blocking implementation, database, security, performance or preview issue remains before protected merge.
+None blocking M4 acceptance.
 
-Final milestone acceptance remains intentionally pending until the protected `staging` merge and post-merge regression complete.
+The remaining Supabase Advisor notices are documented intentional security-boundary warnings/informational notices and fresh-workload unused-index notices. They do not represent a failed M4 acceptance criterion.
 
 ## Deferred items
 
@@ -243,6 +253,6 @@ M5 authentication/onboarding, Study, Review, Mock Exam, Readiness, commerce and 
 
 ## Final acceptance decision
 
-**M4 is READY FOR PROTECTED STAGING MERGE.**
+**M4 — Question Intelligence & Admin: PASS / ACCEPTED.**
 
-Do not mark M4 `PASS — ACCEPTED` until PR #18 is merged through protected `staging` and the post-merge CI, Database CI and Netlify/staging checks pass. Do not begin M5.
+Acceptance is based on the protected PR #18 merge to `staging`, green final pre-merge CI/Database CI and Deploy Preview, hosted Supabase migration/security validation, documented Advisor review, and green post-merge staging CI #67, Database #44 and Netlify branch-deployment smoke. Development must stop at the M4 boundary. M5 has not started.
