@@ -60,12 +60,24 @@ No readiness, mastery, streak, Momentum, entitlement, staff-role or later-milest
 - Signup, resend verification and password recovery use explicit environment-aware redirect URLs.
 - Verification and recovery callbacks fail closed on missing/expired/invalid codes and do not render tokens.
 
+The actual M5 client builds one callback endpoint per environment origin: `/auth-callback.html?flow=signup` for signup/verification and `/auth-callback.html?flow=recovery` for password recovery. Password login has no redirect callback. After a valid recovery code exchange, the application routes internally to `/reset-password.html`.
+
+The minimum hosted staging Auth URL configuration required for final browser acceptance is:
+
+- Site URL: `https://staging--radicx.netlify.app`
+- `https://deploy-preview-20--radicx.netlify.app/auth-callback.html?flow=signup`
+- `https://deploy-preview-20--radicx.netlify.app/auth-callback.html?flow=recovery`
+- `https://staging--radicx.netlify.app/auth-callback.html?flow=signup`
+- `https://staging--radicx.netlify.app/auth-callback.html?flow=recovery`
+
+No production RadicX URL and no broad preview wildcard is approved for M5 staging acceptance.
+
 ## UI implementation decision
 
 - Auth, recovery and onboarding use the existing M3 tokens, fields, buttons, cards, focus treatment and responsive rules.
 - Protected content remains visually hidden behind an auth-loading state until Supabase resolves the session.
 - Onboarding persistence lives only in `public.profiles`; local storage is used only by Supabase Auth for its own session/PKCE state.
-- The dashboard will show only profile/programme/exam/onboarding information and discovery of an existing resumable M2 session. Later readiness/recommendation/engagement values remain explicit unavailable states rather than fabricated numbers.
+- The dashboard shows only profile/programme/exam/onboarding information and discovery of an existing resumable M2 session. Later readiness/recommendation/engagement values remain explicit unavailable states rather than fabricated numbers.
 
 ## RLS and security implications
 
@@ -76,13 +88,36 @@ No readiness, mastery, streak, Momentum, entitlement, staff-role or later-milest
 - No service-role/secret/database credential may enter source, browser bundles, Netlify browser variables or test fixtures.
 - M2 private answer-key and staff-role boundaries remain unchanged.
 
-## Test plan
+## Security Advisor reconciliation
 
-- pgTAP: schema/constraints, active programme relationship, allowed own-profile update, cross-user denial, protected-column denial, invalid onboarding states and relevant index coverage.
+The final-preacceptance Supabase Security Advisor reports WARN notices for M4 `SECURITY DEFINER` admin/content RPCs that intentionally retain `authenticated` EXECUTE. Those notices were not ignored and no blanket revoke was applied because that would break the accepted M4 browser-to-RPC administration model.
+
+Hosted function inspection verifies that every `public.admin_*` RPC is a fixed-empty-`search_path` `SECURITY DEFINER` wrapper that invokes `private.require_staff(...)` before privileged work. `private.require_staff` itself is not executable by browser roles and requires a real authenticated user, JWT AAL2 and an allowed role from `private.staff_roles`. The `is_content_staff()` and `is_content_admin()` helpers independently require AAL2 and private staff-role membership and do not trust editable user metadata.
+
+`supabase/tests/009_m5_m4_security_advisor_reconciliation.sql` was added to make this boundary executable regression evidence. It verifies all M4 admin RPCs reject both an AAL2 non-staff user with forged `user_metadata.role` and an AAL1 staff user, while the content helper functions enforce the same rules. Database CI #49 passed clean reset, lint, all pgTAP suites and generated types with this additional coverage.
+
+The remaining Security Advisor `RLS Enabled No Policy` INFO notices are intentional fail-closed surfaces whose direct browser privileges are revoked, including private key, staff-role, governance, import and audit tables. Adding permissive policies merely to silence the linter would weaken the accepted boundary.
+
+## Performance Advisor reconciliation
+
+The current Performance Advisor reports only `unused_index` INFO notices on the fresh, low-traffic staging database. This includes the M5 `profiles_programme_idx` plus prior M2/M4 workload/FK indexes. There is no current unindexed-foreign-key or blocking performance finding. No index is removed before representative workload exists.
+
+## Test plan and current automated result
+
+- pgTAP: schema/constraints, active programme relationship, allowed own-profile update, cross-user denial, protected-column denial, invalid onboarding states, M4 privileged-RPC reconciliation and relevant index coverage.
 - Node tests: auth-routing decisions, callback state parsing, onboarding transitions/resume, protected-route decisions, session restoration state and dashboard view models.
-- Browser/manual where supported: signup, confirmation strategy, login, logout, recovery/reset, onboarding persistence, refresh restoration and protected-route denial.
+- Browser/manual: signup, confirmation strategy, login, logout, recovery/reset, onboarding persistence, refresh restoration and protected-route denial.
 - Regression: lint, syntax/type boundary, all Node tests, secret scan, production build, accessibility smoke, bundle budget, clean Supabase reset, database lint and all pgTAP suites.
 - Manual: keyboard-only completion, focus/error association, mobile layouts at 360/390/412/480/768/1024/desktop and Netlify Deploy Preview route/callback behavior.
+
+Final-preacceptance automated state after the security reconciliation commit `7e4b3d0644c12f6b809f82406dd342fc7f75895e`:
+
+- Application CI #72: PASS.
+- Database CI #49: PASS, including clean migration reset, Storage seed, database lint, pgTAP and generated types.
+- Netlify PR #20 Deploy Preview: READY/PASS at `https://deploy-preview-20--radicx.netlify.app`.
+- Hosted RadicX Staging: M5 migration present; own-profile RLS and onboarding trigger active; private answer-key and private staff-role SELECT remain unavailable to browser roles.
+- Security Advisor: reconciled as intentional M4 privileged-RPC WARNs plus fail-closed INFO notices, with added pgTAP coverage.
+- Performance Advisor: INFO-only unused-index notices on fresh staging.
 
 ## Explicit exclusions
 
@@ -98,4 +133,6 @@ M5 is accepted only when the complete account lifecycle, verification handling, 
 
 ## Current status
 
-Handoff inspection is complete. The first durable implementation increment is the M5 profile/onboarding migration plus pgTAP security/integrity coverage. Authentication UI and service implementation follows on the same feature branch.
+**NEEDS CORRECTION / IN PROGRESS.**
+
+Implementation, automated regression, hosted database validation, advisor reconciliation and PR Deploy Preview are green. Final acceptance is intentionally blocked until the exact hosted Supabase Auth Site URL/redirect allow-list above is saved and the real-browser lifecycle plus approved responsive/keyboard observations are completed. PR #20 must not merge before those manual hosted gates pass.
