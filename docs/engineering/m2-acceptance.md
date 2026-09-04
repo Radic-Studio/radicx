@@ -1,6 +1,6 @@
 # M2 Acceptance Evidence
 
-Status: IN PROGRESS — hosted staging active; one defense-in-depth approval and Auth dashboard verification remain
+Status: IN PROGRESS — hosted validation substantially complete; Auth dashboard verification and final latest-head CI remain
 
 This record is updated as M2 proceeds through SPECIFY -> BUILD -> TEST -> FIX -> RETEST -> REGRESSION -> STAGING VALIDATION -> ACCEPT.
 
@@ -31,9 +31,11 @@ Retest on commit `dffa84df104360992939f09b692a2ca74b67ef34` passed:
 
 Hosted Performance Advisor then identified unindexed foreign keys. Migration `20260904054500_m2_advisor_indexes.sql` was added and applied to staging. A follow-up advisor run confirms the unindexed-foreign-key findings are resolved. Remaining unused-index notices are informational and expected on a new low-traffic staging database.
 
-A fourth pgTAP file now verifies the advisor-remediation indexes. CI/regression is rerunning against the latest branch state.
+A fourth pgTAP file verifies the advisor-remediation indexes.
 
-The generated-types artifact proves clean generation from the migration-defined database. Committing generated application types is intentionally deferred until an application layer consumes them; M2 does not create an unused frontend dependency merely to satisfy file-count theater.
+After explicit user approval, migration `20260904054800_m2_private_table_rls.sql` enabled RLS on `private.question_keys` and `private.staff_roles` with no browser policies. Hosted verification confirms RLS is enabled on both tables, and authenticated browser-role access continues to fail with SQLSTATE 42501. `001_schema_integrity.sql` now asserts both private tables have RLS enabled.
+
+The generated-types workflow proves clean generation from the migration-defined database. Committing generated application types remains deferred until an application layer consumes them.
 
 ## Hosted validation evidence
 
@@ -44,6 +46,7 @@ Repository migrations applied to hosted staging:
 3. `m2_integrity_indexes_storage`
 4. `m2_published_question_immutability`
 5. `m2_advisor_indexes`
+6. `m2_private_table_rls`
 
 Hosted transactional synthetic-user checks passed:
 
@@ -59,9 +62,9 @@ All test users/records used for hosted authorization checks were rolled back.
 
 Hosted Storage validation confirms three private buckets with the intended size/MIME restrictions. `question-media` has authenticated-read policy foundation. `source-evidence` and `admin-uploads` have no browser policies.
 
-Security Advisor reports only an informational no-policy notice for `public.question_sources`; this is intentional because M2 grants no browser access to that table.
+Security Advisor has no critical/high M2 finding. It reports informational `RLS Enabled No Policy` notices for `private.question_keys`, `private.staff_roles`, and `public.question_sources`. These are intentional fail-closed states: browser access is not granted to these tables in M2.
 
-A separate schema inspection raised a defense-in-depth warning because RLS is disabled on `private.question_keys` and `private.staff_roles`. Those tables are already inaccessible to browser roles because the `private` schema is not exposed and `anon`/`authenticated` privileges are revoked; hosted permission tests confirm denial. Enabling RLS with no browser policies would add another fail-closed layer. The inspection tool explicitly requires user approval before applying that remediation, so this remains pending and is not being silently ignored.
+Performance Advisor has no remaining unindexed-foreign-key finding after remediation. Remaining unused-index notices are informational on a fresh staging database and are deferred until representative query workloads exist.
 
 ## Acceptance checks
 
@@ -70,27 +73,25 @@ A separate schema inspection raised a defense-in-depth warning because RLS is di
 - [x] Core schema authored and hosted.
 - [x] Private question-key and staff-role domain authored and hosted.
 - [x] RLS and explicit browser grants authored for exposed public tables.
+- [x] Private answer-key and staff-role RLS defense-in-depth enabled after explicit approval.
 - [x] Targeted indexes authored.
 - [x] Synthetic seed authored and loaded to staging.
 - [x] pgTAP schema/security tests authored.
 - [x] Database CI workflow authored.
-- [x] Clean CI database reset succeeds on the tested M2 foundation.
-- [x] pgTAP baseline tests pass (30/30); latest advisor-index regression rerun pending.
-- [x] Database lint passes with no schema errors.
+- [x] Clean CI database reset succeeds on tested M2 foundation.
+- [x] Database lint passes with no schema errors on tested M2 foundation.
 - [x] Generated TypeScript type workflow succeeds from clean schema.
-- [x] Application/M1 regression `verify` gate passed on tested M2 state; latest rerun pending.
 - [x] Hosted staging project provisioned.
 - [x] Repository migrations applied to hosted staging.
 - [x] Hosted cross-user/security validation performed.
 - [x] Storage hosted-staging validation performed.
-- [x] Security Advisor reviewed; only intentional informational finding remains.
+- [x] Security Advisor reviewed; only intentional informational no-policy findings remain.
 - [x] Performance Advisor reviewed; unindexed-FK findings remediated, fresh-database unused-index notices documented.
-- [ ] Private-table RLS defense-in-depth remediation decision completed.
 - [ ] Hosted Auth dashboard settings verified (connector cannot read/write these settings).
-- [ ] Latest CI/regression rerun completed after advisor remediation/docs changes.
+- [ ] Latest branch-head CI/regression completed after private-table RLS and documentation changes.
 - [ ] Staging validation completed.
 - [ ] M2 accepted.
 
 Detailed hosted evidence: `docs/engineering/m2-hosted-validation.md`.
 
-No item is marked complete merely because SQL/code exists. M2 remains open until the remaining security decision, Auth configuration verification and final regression pass are complete.
+No item is marked complete merely because SQL/code exists. M2 remains open until hosted Auth configuration is verified and the final latest-head regression run passes.
