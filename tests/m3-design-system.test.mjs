@@ -31,6 +31,19 @@ test('approved identity and spacing tokens are implemented', async () => {
   assert.match(css, /--radic-radius-pill:\s*999px/);
 });
 
+test('responsive model covers approved breakpoints and width caps', async () => {
+  const base = await text('src/design-system/base.css');
+  const shells = await text('src/design-system/shells.css');
+  const tokens = await text('src/design-system/tokens.css');
+  assert.match(base, /@media\s*\(min-width:\s*480px\)/);
+  assert.match(base, /@media\s*\(min-width:\s*768px\)/);
+  assert.match(shells, /@media\s*\(min-width:\s*1024px\)/);
+  assert.match(shells, /@media\s*\(min-width:\s*1440px\)/);
+  assert.match(tokens, /--radic-content-max:\s*1240px/);
+  assert.match(tokens, /--radic-reading-max:\s*720px/);
+  assert.match(tokens, /--radic-admin-max:\s*1600px/);
+});
+
 test('motion and accessibility foundations exist', async () => {
   const tokens = await text('src/design-system/tokens.css');
   const base = await text('src/design-system/base.css');
@@ -50,6 +63,24 @@ test('component foundation exports required M3 primitives and later interfaces',
   for (const name of ['RadicAnswerOption', 'RadicQuestion', 'RadicReadiness', 'RadicMomentum', 'RadicMission', 'RadicAchievement', 'RadicExamTimer']) {
     assert.ok(js.includes(name), `missing specialized interface ${name}`);
   }
+});
+
+test('shell navigation architecture matches M3 specification', async () => {
+  const student = await text('public/student.html');
+  for (const label of ['Home', 'Study', 'Mock Exams', 'Review', 'Progress', 'Profile']) assert.ok(student.includes(label), `student shell missing ${label}`);
+  assert.match(student, /student-bottom-nav/);
+  for (const label of ['Home', 'Study', 'Exam', 'Review', 'Progress']) assert.ok(student.includes(`>${label}<`) || student.includes(`${label}</`), `mobile navigation missing ${label}`);
+
+  const exam = await text('public/exam.html');
+  for (const label of ['Question', 'Time', 'Previous', 'Flag', 'Next', 'Sync status placeholder']) assert.ok(exam.includes(label), `exam shell missing ${label}`);
+
+  const admin = await text('public/admin.html');
+  for (const label of ['Questions', 'Reviews', 'Sources', 'Imports', 'Reports', 'Exam Profiles', 'Blueprints', 'Students', 'Support', 'Abuse', 'Learning', 'Question Quality', 'Platform', 'Jobs', 'Audit Log', 'Releases', 'Settings']) assert.ok(admin.includes(label), `admin shell missing ${label}`);
+});
+
+test('tabs implement keyboard navigation contracts', async () => {
+  const interactions = await text('src/components/radic-interactions.js');
+  for (const key of ['ArrowRight', 'ArrowLeft', 'Home', 'End']) assert.ok(interactions.includes(key), `tab keyboard support missing ${key}`);
 });
 
 test('M2 migrations remain untouched on M3 branch', async () => {
