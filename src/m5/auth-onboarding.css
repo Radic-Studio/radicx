@@ -1,0 +1,307 @@
+body[data-auth-state="loading"] .m5-protected,
+body[data-auth-state="anonymous"] .m5-protected {
+  visibility: hidden;
+}
+
+body[data-auth-state="authenticated"] .m5-auth-loading,
+body[data-auth-state="anonymous"] .m5-auth-loading {
+  display: none;
+}
+
+.m5-auth-loading {
+  width: min(calc(100% - 32px), 680px);
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  margin-inline: auto;
+  padding: var(--radic-space-10) 0;
+}
+
+.m5-auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background:
+    radial-gradient(circle at 94% 10%, rgb(84 87 232 / 0.08), transparent 25rem),
+    radial-gradient(circle at 8% 90%, rgb(20 184 166 / 0.05), transparent 20rem),
+    var(--radic-color-porcelain);
+}
+
+.m5-auth-header {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgb(234 236 240 / 0.8);
+  background: rgb(252 252 253 / 0.9);
+}
+
+.m5-auth-header__inner {
+  width: min(calc(100% - 32px), 1080px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--radic-space-4);
+  margin-inline: auto;
+}
+
+.m5-auth-main {
+  width: min(calc(100% - 32px), 1080px);
+  display: grid;
+  align-items: center;
+  gap: var(--radic-space-8);
+  margin-inline: auto;
+  padding: var(--radic-space-8) 0 var(--radic-space-12);
+}
+
+.m5-auth-intro {
+  max-width: 580px;
+}
+
+.m5-auth-panel {
+  width: 100%;
+  max-width: 520px;
+  justify-self: center;
+}
+
+.m5-auth-panel .radic-card__body {
+  display: grid;
+  gap: var(--radic-space-5);
+}
+
+.m5-auth-form {
+  display: grid;
+  gap: var(--radic-space-4);
+}
+
+.m5-auth-form__actions {
+  display: grid;
+  gap: var(--radic-space-3);
+}
+
+.m5-password-row {
+  position: relative;
+}
+
+.m5-password-row .radic-input {
+  padding-right: 84px;
+}
+
+.m5-password-toggle {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  min-height: 32px;
+  border: 0;
+  border-radius: var(--radic-radius-small);
+  background: transparent;
+  color: var(--radic-color-indigo-strong);
+  padding: 4px 8px;
+  font: inherit;
+  font-size: var(--radic-font-label-size);
+  font-weight: var(--radic-weight-semibold);
+  cursor: pointer;
+}
+
+.m5-password-toggle:focus-visible {
+  outline: 3px solid rgb(84 87 232 / 0.24);
+  outline-offset: 2px;
+}
+
+.m5-form-message {
+  min-height: 24px;
+  margin: 0;
+  color: var(--radic-color-slate);
+  font-size: var(--radic-font-support-size);
+}
+
+.m5-form-message[data-tone="error"] {
+  color: var(--radic-color-error);
+}
+
+.m5-form-message[data-tone="success"] {
+  color: var(--radic-color-success);
+}
+
+.m5-auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--radic-space-2) var(--radic-space-4);
+  align-items: center;
+}
+
+.m5-auth-links a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--radic-color-indigo-strong);
+  font-weight: var(--radic-weight-semibold);
+}
+
+.m5-onboarding-shell {
+  min-height: 100vh;
+  background: var(--radic-color-porcelain);
+}
+
+.m5-onboarding-main {
+  width: min(calc(100% - 32px), 820px);
+  margin-inline: auto;
+  padding: var(--radic-space-6) 0 var(--radic-space-12);
+}
+
+.m5-onboarding-header {
+  display: grid;
+  gap: var(--radic-space-3);
+  margin-bottom: var(--radic-space-6);
+}
+
+.m5-step-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--radic-space-2);
+  margin: 0 0 var(--radic-space-6);
+  padding: 0;
+  list-style: none;
+}
+
+.m5-step-list li {
+  min-width: 0;
+  border-top: 3px solid var(--radic-color-hairline);
+  padding-top: var(--radic-space-2);
+  color: var(--radic-color-mist-text);
+  font-size: clamp(0.6875rem, 2.6vw, 0.8125rem);
+  font-weight: var(--radic-weight-semibold);
+}
+
+.m5-step-list li[data-state="current"],
+.m5-step-list li[data-state="complete"] {
+  border-top-color: var(--radic-color-indigo);
+  color: var(--radic-color-ink);
+}
+
+.m5-onboarding-panel {
+  min-height: 330px;
+}
+
+.m5-onboarding-panel .radic-card__body {
+  display: grid;
+  gap: var(--radic-space-6);
+}
+
+.m5-onboarding-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--radic-space-3);
+  justify-content: space-between;
+}
+
+.m5-study-options,
+.m5-diagnostic-options {
+  display: grid;
+  gap: var(--radic-space-3);
+}
+
+.m5-option-card {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: var(--radic-space-3);
+  border: 1px solid var(--radic-color-hairline);
+  border-radius: var(--radic-radius-standard);
+  background: var(--radic-color-white);
+  padding: var(--radic-space-4);
+  cursor: pointer;
+}
+
+.m5-option-card:has(input:checked) {
+  border-color: var(--radic-color-indigo);
+  box-shadow: 0 0 0 3px rgb(84 87 232 / 0.1);
+}
+
+.m5-option-card input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  accent-color: var(--radic-color-indigo);
+}
+
+.m5-dashboard-details {
+  display: grid;
+  gap: var(--radic-space-4);
+}
+
+.m5-detail-row {
+  display: grid;
+  gap: 4px;
+  padding-bottom: var(--radic-space-3);
+  border-bottom: 1px solid var(--radic-color-hairline);
+}
+
+.m5-detail-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.m5-detail-row dt {
+  color: var(--radic-color-mist-text);
+  font-size: var(--radic-font-label-size);
+  font-weight: var(--radic-weight-semibold);
+}
+
+.m5-detail-row dd {
+  margin: 0;
+  color: var(--radic-color-ink);
+  font-weight: var(--radic-weight-semibold);
+}
+
+.m5-next-action {
+  border-left: 3px solid var(--radic-color-indigo);
+}
+
+.m5-quiet-status {
+  display: grid;
+  gap: var(--radic-space-2);
+  border: 1px solid var(--radic-color-hairline);
+  border-radius: var(--radic-radius-standard);
+  background: var(--radic-color-cloud);
+  padding: var(--radic-space-4);
+}
+
+.m5-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .m5-auth-main {
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 480px);
+    padding-block: var(--radic-space-12);
+  }
+
+  .m5-auth-panel {
+    justify-self: end;
+  }
+
+  .m5-study-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .m5-diagnostic-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 479px) {
+  .m5-onboarding-actions .radic-button,
+  .m5-auth-form__actions .radic-button {
+    width: 100%;
+  }
+
+  .m5-onboarding-actions {
+    flex-direction: column-reverse;
+  }
+}

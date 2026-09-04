@@ -1,121 +1,17 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#FCFCFD" />
-    <meta name="robots" content="noindex,nofollow" />
-    <title>Student Shell — RadicX M3</title>
-    <link rel="stylesheet" href="/assets/styles.css" />
-  </head>
-  <body>
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#FCFCFD" /><meta name="robots" content="noindex,nofollow" /><title>Student home · RadicX</title><link rel="stylesheet" href="/assets/styles.css" /></head>
+  <body data-auth-state="loading">
     <a class="skip-link" href="#student-main">Skip to main content</a>
-    <div class="student-shell">
-      <aside class="student-sidebar" aria-label="Student navigation">
-        <a class="radic-brand" href="/" aria-label="RadicX home">
-          <span class="radic-brand__mark" aria-hidden="true">R</span>
-          <span>RadicX</span>
-        </a>
-        <nav class="student-sidebar__nav" aria-label="Primary student navigation">
-          <a class="radic-nav-link" href="/student.html" aria-current="page">Home</a>
-          <a class="radic-nav-link" href="#study-placeholder">Study</a>
-          <a class="radic-nav-link" href="/exam.html">Mock Exams</a>
-          <a class="radic-nav-link" href="#review-placeholder">Review</a>
-          <a class="radic-nav-link" href="#progress-placeholder">Progress</a>
-        </nav>
-        <div class="student-sidebar__footer">
-          <a class="radic-nav-link" href="#profile-placeholder">Profile / Settings</a>
-          <span class="radic-sync-state radic-sync-state--success" role="status"><span class="radic-status-dot"></span>Online</span>
-        </div>
-      </aside>
-
-      <div>
-        <header class="student-mobile-header">
-          <a class="radic-brand" href="/" aria-label="RadicX home">
-            <span class="radic-brand__mark" aria-hidden="true">R</span>
-            <span>RadicX</span>
-          </a>
-          <a class="radic-button radic-button--icon" href="#profile-placeholder" aria-label="Profile and settings">P</a>
-        </header>
-
-        <main class="student-main" id="student-main">
-          <div class="student-main__inner">
-            <header class="student-page-header">
-              <div>
-                <p class="radic-eyebrow">Student application shell</p>
-                <h1 class="radic-page-heading">Your preparation space</h1>
-                <p class="radic-supporting-text">Structure only. M5–M9 will supply authenticated data, learning logic, readiness and engagement.</p>
-              </div>
-              <span class="radic-sync-state radic-sync-state--success" role="status"><span class="radic-status-dot"></span>Online</span>
-            </header>
-
-            <div class="student-dashboard-grid">
-              <section class="student-dashboard-grid__primary" aria-label="Student primary area">
-                <article class="radic-card" id="study-placeholder">
-                  <div class="radic-card__body">
-                    <p class="radic-eyebrow">Recommended study</p>
-                    <h2>Recommendation appears here after M7</h2>
-                    <p>The shell preserves a clear one-tap action position without inventing a recommendation or learner state.</p>
-                    <button class="radic-button radic-button--primary" type="button" disabled>Start recommended study</button>
-                  </div>
-                </article>
-
-                <article class="radic-card radic-card--quiet" id="review-placeholder">
-                  <div class="radic-card__body">
-                    <div class="radic-empty-state">
-                      <div class="radic-empty-state__mark" aria-hidden="true">RX</div>
-                      <h2>Review queue is not active in M3</h2>
-                      <p class="radic-supporting-text">Due review, weak-area and misconception queues arrive with the Learning & Review Engine.</p>
-                    </div>
-                  </div>
-                </article>
-              </section>
-
-              <aside class="student-dashboard-grid__secondary" aria-label="Student secondary area">
-                <article class="radic-card" id="progress-placeholder">
-                  <div class="radic-card__body radic-stack">
-                    <div class="radic-stat">
-                      <span class="radic-label">Readiness</span>
-                      <strong class="radic-stat__value">—</strong>
-                      <span class="radic-supporting-text">No evidence yet. M9 owns readiness calculation.</span>
-                    </div>
-                    <div class="radic-progress" role="progressbar" aria-label="Readiness placeholder" aria-valuetext="Not available until M9">
-                      <div class="radic-progress__bar" style="width: 0%;"></div>
-                    </div>
-                  </div>
-                </article>
-
-                <article class="radic-card" id="profile-placeholder">
-                  <div class="radic-card__body">
-                    <p class="radic-eyebrow">Profile / Settings</p>
-                    <h3>Account shell reserved</h3>
-                    <p class="radic-supporting-text">Authentication, onboarding and real profile controls begin in M5.</p>
-                    <button class="radic-button radic-button--secondary" type="button" disabled>Manage profile</button>
-                  </div>
-                </article>
-
-                <article class="shell-placeholder" aria-label="Offline and sync language preview">
-                  <span class="radic-sync-state radic-sync-state--offline" role="status"><span class="radic-status-dot"></span>Offline · progress saved on this device</span>
-                  <span class="radic-sync-state radic-sync-state--neutral" role="status"><span class="radic-status-dot"></span>Syncing…</span>
-                  <span class="radic-sync-state radic-sync-state--warning" role="status"><span class="radic-status-dot"></span>Sync required</span>
-                  <p class="radic-supporting-text">These are visual states only. M11 owns offline architecture hardening.</p>
-                </article>
-              </aside>
-            </div>
-          </div>
-        </main>
-      </div>
+    <div class="m5-auth-loading" role="status" aria-live="polite"><div class="radic-stack"><span class="radic-skeleton" style="width: 240px; height: 24px;" aria-hidden="true"></span><span class="radic-supporting-text">Restoring your secure student session…</span></div></div>
+    <div class="student-shell m5-protected">
+      <aside class="student-sidebar" aria-label="Student navigation"><a class="radic-brand" href="/student.html" aria-label="RadicX student home"><span class="radic-brand__mark" aria-hidden="true">R</span><span>RadicX</span></a><nav class="student-sidebar__nav" aria-label="Primary student navigation"><a class="radic-nav-link" href="/student.html" aria-current="page">Home</a><a class="radic-nav-link" href="/focus.html">Study</a><a class="radic-nav-link" href="/exam.html">Mock Exams</a><a class="radic-nav-link" href="#review-status">Review</a><a class="radic-nav-link" href="#progress-status">Progress</a><a class="radic-nav-link" href="#profile-status">Profile</a></nav><div class="student-sidebar__footer"><button class="radic-button radic-button--text" type="button" data-logout>Sign out</button><span class="radic-sync-state radic-sync-state--success" role="status"><span class="radic-status-dot" aria-hidden="true"></span>Authenticated</span></div></aside>
+      <div><header class="student-mobile-header"><a class="radic-brand" href="/student.html" aria-label="RadicX student home"><span class="radic-brand__mark" aria-hidden="true">R</span><span>RadicX</span></a><button class="radic-button radic-button--secondary" type="button" data-logout>Sign out</button></header>
+        <main class="student-main" id="student-main"><div class="student-main__inner"><header class="student-page-header"><div><p class="radic-eyebrow">Student home</p><h1 class="radic-page-heading">Welcome, <span id="student-name">Student</span>.</h1><p class="radic-supporting-text">Your M5 account foundation is active. Learning intelligence remains deliberately unavailable until its approved milestones.</p></div><span class="radic-sync-state radic-sync-state--success" role="status"><span class="radic-status-dot" aria-hidden="true"></span>Session restored</span></header>
+          <div class="student-dashboard-grid"><section class="student-dashboard-grid__primary" aria-label="Student primary area"><article class="radic-card m5-next-action"><div class="radic-card__body"><p class="radic-eyebrow">Primary next action</p><h2 id="next-action-title">Loading next action</h2><p id="next-action-body" class="radic-supporting-text"></p><button class="radic-button radic-button--primary" type="button" id="next-action-label" disabled>Later milestone</button></div></article><article class="radic-card radic-card--quiet" id="review-status"><div class="radic-card__body"><div class="radic-empty-state"><div class="radic-empty-state__mark" aria-hidden="true">RX</div><h2>Review intelligence is not active yet</h2><p class="radic-supporting-text">Weak areas, mistakes, spaced review and misconceptions belong to M7. No synthetic review queue is shown.</p></div></div></article></section>
+            <aside class="student-dashboard-grid__secondary" aria-label="Student profile and status"><article class="radic-card" id="profile-status"><div class="radic-card__body"><p class="radic-eyebrow">Preparation profile</p><dl class="m5-dashboard-details"><div class="m5-detail-row"><dt>Programme</dt><dd id="programme-name">Loading…</dd></div><div class="m5-detail-row"><dt>Expected exam date</dt><dd id="exam-date">Loading…</dd></div><div class="m5-detail-row"><dt>Exam countdown</dt><dd id="exam-countdown">Loading…</dd></div><div class="m5-detail-row"><dt>Daily study preference</dt><dd id="daily-study">Loading…</dd></div></dl></div></article><article class="radic-card" id="progress-status"><div class="radic-card__body"><p class="radic-eyebrow">Learning evidence</p><div class="m5-quiet-status"><strong>Readiness is not available in M5</strong><span class="radic-supporting-text">M9 owns readiness and evidence-strength calculation. No placeholder percentage is presented as learner data.</span></div></div></article><article class="radic-card"><div class="radic-card__body"><p class="radic-eyebrow">Existing session discovery</p><p class="radic-supporting-text" id="session-state">Checking for an unfinished M2 session…</p><p class="radic-supporting-text">Discovery is active; question-flow resume behavior remains M6 scope.</p></div></article></aside></div></div></main></div>
     </div>
-
-    <nav class="student-bottom-nav" aria-label="Mobile student navigation">
-      <a href="/student.html" aria-current="page"><span class="student-bottom-nav__glyph" aria-hidden="true">H</span><span>Home</span></a>
-      <a href="#study-placeholder"><span class="student-bottom-nav__glyph" aria-hidden="true">S</span><span>Study</span></a>
-      <a href="/exam.html"><span class="student-bottom-nav__glyph" aria-hidden="true">E</span><span>Exam</span></a>
-      <a href="#review-placeholder"><span class="student-bottom-nav__glyph" aria-hidden="true">R</span><span>Review</span></a>
-      <a href="#progress-placeholder"><span class="student-bottom-nav__glyph" aria-hidden="true">P</span><span>Progress</span></a>
-    </nav>
-
-    <div class="radic-toast-region" aria-live="polite" aria-atomic="true" data-toast-region></div>
-    <script type="module" src="/assets/app.js"></script>
+    <nav class="student-bottom-nav m5-protected" aria-label="Mobile student navigation"><a href="/student.html" aria-current="page"><span class="student-bottom-nav__glyph" aria-hidden="true">H</span><span>Home</span></a><a href="/focus.html"><span class="student-bottom-nav__glyph" aria-hidden="true">S</span><span>Study</span></a><a href="/exam.html"><span class="student-bottom-nav__glyph" aria-hidden="true">E</span><span>Exam</span></a><a href="#review-status"><span class="student-bottom-nav__glyph" aria-hidden="true">R</span><span>Review</span></a><a href="#progress-status"><span class="student-bottom-nav__glyph" aria-hidden="true">P</span><span>Progress</span></a></nav>
+    <script src="/assets/runtime-config.js"></script><script type="module" src="/assets/m5/student-dashboard.js"></script>
   </body>
 </html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#FCFCFD" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Create account · RadicX</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body class="m5-auth-shell" data-m5-page="signup">
+    <a class="skip-link" href="#auth-main">Skip to account creation</a>
+    <header class="m5-auth-header"><div class="m5-auth-header__inner"><a class="radic-brand" href="/" aria-label="RadicX home"><span class="radic-brand__mark" aria-hidden="true">R</span><span>RadicX</span></a><a class="radic-button radic-button--text" href="/login.html">Sign in</a></div></header>
+    <main class="m5-auth-main" id="auth-main">
+      <section class="m5-auth-intro" aria-labelledby="signup-intro-title"><p class="radic-eyebrow">NMCN Midwifery preparation</p><h1 class="radic-page-heading" id="signup-intro-title">Build a preparation record you can return to.</h1><p class="radic-supporting-text">Create one student account, verify the email, then complete the short first-use setup. Supabase remains the identity authority.</p></section>
+      <section class="radic-card m5-auth-panel" aria-labelledby="signup-title"><div class="radic-card__body">
+        <div><p class="radic-eyebrow">Student account</p><h2 id="signup-title">Create your account</h2></div>
+        <form class="m5-auth-form" id="signup-form">
+          <div class="radic-field"><label class="radic-label" for="signup-name">Display name</label><input class="radic-input" id="signup-name" name="name" type="text" autocomplete="name" maxlength="80" required /><p class="radic-field__hint">Used to personalise your student workspace.</p></div>
+          <div class="radic-field"><label class="radic-label" for="signup-email">Email address</label><input class="radic-input" id="signup-email" name="email" type="email" autocomplete="email" required /></div>
+          <div class="radic-field m5-password-row"><label class="radic-label" for="signup-password">Password</label><input class="radic-input" id="signup-password" name="password" type="password" autocomplete="new-password" minlength="8" required aria-describedby="signup-password-hint" /><button class="m5-password-toggle" type="button" data-password-toggle="signup-password" aria-pressed="false">Show</button><p class="radic-field__hint" id="signup-password-hint">Use at least 8 characters.</p></div>
+          <div class="radic-field m5-password-row"><label class="radic-label" for="signup-password-confirm">Confirm password</label><input class="radic-input" id="signup-password-confirm" name="password-confirm" type="password" autocomplete="new-password" minlength="8" required /><button class="m5-password-toggle" type="button" data-password-toggle="signup-password-confirm" aria-pressed="false">Show</button></div>
+          <p class="m5-form-message" id="signup-message" role="status" aria-live="polite" data-auth-config-message></p>
+          <div class="m5-auth-form__actions"><button class="radic-button radic-button--primary" type="submit">Create account</button></div>
+        </form>
+        <div class="m5-auth-links"><span class="radic-supporting-text">Already have an account?</span><a href="/login.html">Sign in</a></div>
+      </div></section>
+    </main>
+    <script src="/assets/runtime-config.js"></script><script type="module" src="/assets/m5/auth-pages.js"></script>
+  </body>
+</html>
