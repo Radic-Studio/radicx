@@ -25,6 +25,7 @@ const completeProfile = {
 
 test('safeNextPath allows only approved local protected routes', () => {
   assert.equal(safeNextPath('/exam.html'), '/exam.html');
+  assert.equal(safeNextPath('/study.html'), '/study.html');
   assert.equal(safeNextPath('https://evil.example/'), '/student.html');
   assert.equal(safeNextPath('//evil.example/'), '/student.html');
   assert.equal(safeNextPath('/admin.html'), '/student.html');
@@ -55,7 +56,8 @@ test('onboarding resumes the persisted valid step and clamps malformed progressi
 });
 
 test('post-auth routing sends incomplete users to onboarding and preserves safe completed-user destinations', () => {
-  assert.equal(destinationAfterAuthentication({ onboarding_status: 'not_started' }, '/exam.html'), '/onboarding.html');
+  assert.equal(destinationAfterAuthentication({ onboarding_status: 'not_started' }, '/study.html'), '/onboarding.html');
+  assert.equal(destinationAfterAuthentication(completeProfile, '/study.html'), '/study.html');
   assert.equal(destinationAfterAuthentication(completeProfile, '/exam.html'), '/exam.html');
   assert.equal(destinationAfterAuthentication(completeProfile, '/onboarding.html'), '/student.html');
 });
@@ -85,7 +87,7 @@ test('session restoration validates persisted sessions against the Auth server',
   assert.equal(signedOut, true);
 });
 
-test('countdown and dashboard model remain truthful without later-milestone analytics', () => {
+test('countdown and dashboard model remain truthful while M6 Study becomes active', () => {
   assert.deepEqual(examCountdown('2026-09-05', new Date('2026-09-04T12:00:00Z')), {
     kind: 'future',
     days: 1,
@@ -95,11 +97,19 @@ test('countdown and dashboard model remain truthful without later-milestone anal
   const model = dashboardViewModel({
     profile: { ...completeProfile, display_name: 'Ada' },
     programme: { name: 'NMCN Midwifery CBT Preparation' },
-    resumableSession: { id: 'session-1', status: 'active' },
+    resumableSession: {
+      id: 'session-1',
+      mode: 'study',
+      status: 'active',
+      study_kind: 'quick',
+      current_position: 2,
+      target_question_count: 5
+    },
     now: new Date('2026-09-04T12:00:00Z')
   });
 
   assert.equal(model.displayName, 'Ada');
   assert.equal(model.nextAction.kind, 'resume');
-  assert.match(model.nextAction.body, /M6/);
+  assert.equal(model.nextAction.label, 'Continue Study');
+  assert.match(model.nextAction.href, /^\/focus\.html\?session=/);
 });
