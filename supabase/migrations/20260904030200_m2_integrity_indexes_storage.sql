@@ -30,7 +30,14 @@ create index user_question_state_review_idx on public.user_question_state(user_i
 create index question_reports_question_status_idx on public.question_reports(question_id, status, created_at desc);
 create index question_reports_user_created_idx on public.question_reports(user_id, created_at desc);
 
-create policy question_media_read_authenticated on storage.objects for select to authenticated using (bucket_id = 'question-media');
+create policy question_media_read_authenticated
+on storage.objects
+for select
+to authenticated
+using (
+  bucket_id = 'question-media'
+  and storage.allow_any_operation(array['object.get_authenticated_info','object.get_authenticated'])
+);
 
 -- Source evidence and administrative uploads intentionally receive no browser policies in M2.
 -- Their buckets remain private and server/staff access is added only through trusted M4+ workflows.
