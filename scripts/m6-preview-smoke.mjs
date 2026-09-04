@@ -9,11 +9,9 @@ if (!/^https:\/\/deploy-preview-\d+--radicx\.netlify\.app$/.test(base)) {
 
 const distRoot = path.resolve('dist');
 const textExtensions = new Set(['.html', '.js', '.css', '.json', '.txt']);
-const forbidden = [
-  [/private\.question_keys/i, 'private answer-key table reference'],
+const forbiddenBuildSecrets = [
   [/Synthetic private explanation for automated/i, 'known private seed explanation'],
   [/\bsb_secret_[a-z0-9_-]+/i, 'Supabase secret key'],
-  [/\bservice[_-]?role\b/i, 'service-role reference'],
   [/DATABASE_PASSWORD/i, 'database password variable']
 ];
 
@@ -52,15 +50,24 @@ for (const entry of localFiles) {
   }
   checked += 1;
 
-  for (const [pattern, label] of forbidden) {
+  for (const [pattern, label] of forbiddenBuildSecrets) {
     if (pattern.test(remote.body)) failures.push(`${entry.relative}: contains ${label}`);
+  }
+
+  const normalized = entry.relative.replaceAll('\\', '/');
+  const studyBrowserFile = /(?:^|\/)assets\/m6\/|^(?:study|focus)\.html$/.test(normalized);
+  if (studyBrowserFile && /private\.question_keys|\.from\(['"]question_keys['"]\)/i.test(remote.body)) {
+    failures.push(`${entry.relative}: Study browser code addresses the private answer-key store`);
+  }
+  if (studyBrowserFile && /\.from\(['"]questions['"]\)/i.test(remote.body)) {
+    failures.push(`${entry.relative}: Study browser code bypasses the safe Study RPC boundary`);
   }
 
   if (entry.relative === path.join('assets', 'runtime-config.js')) {
     if (!/supabaseUrl/.test(remote.body) || !/supabasePublishableKey/.test(remote.body)) {
       failures.push('assets/runtime-config.js: missing approved public Supabase configuration shape');
     }
-    if (/serviceRole|secretKey|databasePassword/i.test(remote.body)) {
+    if (/service[_-]?role|sb_secret_|database_password|serviceRole|secretKey|databasePassword/i.test(remote.body)) {
       failures.push('assets/runtime-config.js: contains an unapproved privileged configuration field');
     }
     continue;
