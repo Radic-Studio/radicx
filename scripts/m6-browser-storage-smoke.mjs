@@ -19,7 +19,7 @@ if (!chrome) throw new Error('M6 browser storage smoke requires Chromium/Chrome 
 const distRoot = path.resolve('dist');
 const fixture = path.join(distRoot, 'm6-storage-smoke.html');
 const profileDir = path.resolve('.m6-chrome-profile');
-await rm(profileDir, { recursive: true, force: true });
+await rm(profileDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 
 const html = `<!doctype html>
 <html lang="en" data-m6-storage="running">
@@ -175,6 +175,25 @@ function readRequestBody(request) {
   });
 }
 
+function stopBrowser(child) {
+  if (!child || child.exitCode !== null) return Promise.resolve();
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    child.once('exit', finish);
+    child.kill('SIGTERM');
+    const forceTimer = setTimeout(() => {
+      if (child.exitCode === null) child.kill('SIGKILL');
+      setTimeout(finish, 250).unref();
+    }, 2000);
+    forceTimer.unref();
+  });
+}
+
 let resolveBrowserResult;
 let rejectBrowserResult;
 const browserResult = new Promise((resolve, reject) => {
@@ -245,7 +264,8 @@ try {
   });
 
   const timeout = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error(`M6 browser storage smoke timed out waiting for the real-browser callback.\n${browserStderr}`)), 20000);
+    const timer = setTimeout(() => reject(new Error(`M6 browser storage smoke timed out waiting for the real-browser callback.\n${browserStderr}`)), 20000);
+    timer.unref();
   });
   const result = await Promise.race([browserResult, timeout]);
 
@@ -254,8 +274,8 @@ try {
   }
   console.log('M6 real-browser IndexedDB persistence/outbox smoke passed on a loopback HTTP origin.');
 } finally {
-  if (browser && browser.exitCode === null) browser.kill('SIGTERM');
+  await stopBrowser(browser);
   if (server) await new Promise((resolve) => server.close(resolve));
   await rm(fixture, { force: true });
-  await rm(profileDir, { recursive: true, force: true });
+  await rm(profileDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 }
