@@ -14,6 +14,19 @@ exception when others then
 end;
 $$;
 
+create function pg_temp.exec_rowcount(statement text)
+returns bigint
+language plpgsql
+as $$
+declare
+  affected bigint;
+begin
+  execute statement;
+  get diagnostics affected = row_count;
+  return affected;
+end;
+$$;
+
 insert into auth.users(id, email, aud, role) values
 ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','student-a@example.invalid','authenticated','authenticated'),
 ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','student-b@example.invalid','authenticated','authenticated');
@@ -27,7 +40,7 @@ select set_config('request.jwt.claims','{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa
 
 select is((select count(*) from public.sessions), 1::bigint, 'Student A sees only Student A sessions');
 select is((select count(*) from public.profiles), 1::bigint, 'Student A sees only Student A profile');
-select is((with changed as (update public.sessions set status='active' where user_id='bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' returning 1) select count(*) from changed), 0::bigint, 'Student A cannot update Student B session');
+select is(pg_temp.exec_rowcount($q$update public.sessions set status='active' where user_id='bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'$q$), 0::bigint, 'Student A cannot update Student B session');
 select is(pg_temp.capture_sqlstate('select * from private.question_keys'), '42501', 'Student cannot read private answer keys');
 select is(pg_temp.capture_sqlstate($q$insert into private.staff_roles(user_id, role) values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','super_admin')$q$), '42501', 'Student cannot self-assign staff role even with forged user metadata');
 select is(pg_temp.capture_sqlstate($q$update public.profiles set created_at = now() where user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'$q$), '42501', 'Student cannot update protected profile columns');
