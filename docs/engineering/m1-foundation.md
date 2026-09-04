@@ -26,6 +26,6 @@ Establish GitHub source control, reproducible local builds, CI verification, sta
 
 ## Validation note
 
-GitHub pull-request and push workflows have completed successfully with the hosted `verify` job. Netlify production deployment from `main` is ready and a GitHub-linked Deploy Preview was verified ready through PR #7. PR #8 is the clean staging-path validation used to exercise the normal protected-branch workflow before the final staging deployment smoke test.
+GitHub pull-request and push workflows have completed successfully with the hosted `verify` job. Netlify production deployment from `main` is ready and a GitHub-linked Deploy Preview was verified ready through PR #7. PR #8 exercised the normal protected staging workflow, but its post-merge smoke check confirmed that branch deploys were not yet enabled. The Netlify `staging` branch-deploy setting has now been enabled by the project owner; this retrigger branch exists solely to generate a fresh protected `staging` push and verify the resulting Netlify staging deployment.
 
 M1 must not be accepted until every blocking item above is verified. Generating files is not acceptance.
