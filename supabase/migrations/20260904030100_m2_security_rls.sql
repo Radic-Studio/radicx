@@ -14,12 +14,21 @@ alter table public.bookmarks enable row level security;
 alter table public.question_reports enable row level security;
 
 revoke all on all tables in schema public from anon, authenticated;
-grant select, update on public.profiles to authenticated;
+grant select on public.profiles to authenticated;
+grant update(display_name) on public.profiles to authenticated;
 grant select on public.programmes, public.subjects, public.topics to authenticated;
 grant select on public.questions to authenticated;
-grant select, insert, update, delete on public.sessions, public.session_answers, public.bookmarks to authenticated;
+grant select, delete on public.sessions to authenticated;
+grant insert(user_id, mode, status, current_question_id, device_version, started_at, submitted_at, last_activity_at) on public.sessions to authenticated;
+grant update(status, current_question_id, device_version, started_at, submitted_at, last_activity_at) on public.sessions to authenticated;
+grant select, delete on public.session_answers to authenticated;
+grant insert(session_id, user_id, question_id, selected_option, confidence, flagged, operation_id, answered_at) on public.session_answers to authenticated;
+grant update(selected_option, confidence, flagged, answered_at) on public.session_answers to authenticated;
 grant select on public.user_progress, public.user_question_state, public.user_subject_stats, public.user_topic_stats to authenticated;
-grant select, insert on public.question_reports to authenticated;
+grant select, delete on public.bookmarks to authenticated;
+grant insert(user_id, question_id) on public.bookmarks to authenticated;
+grant select on public.question_reports to authenticated;
+grant insert(user_id, question_id, category, details) on public.question_reports to authenticated;
 grant all on all tables in schema public to service_role;
 grant usage, select on all sequences in schema public to service_role;
 
@@ -56,9 +65,13 @@ create policy question_reports_insert_own on public.question_reports for insert 
 revoke all on all tables in schema private from public, anon, authenticated;
 grant all on all tables in schema private to service_role;
 
-alter default privileges for role postgres in schema private revoke all on tables from public, anon, authenticated;
-alter default privileges for role postgres in schema private revoke all on sequences from public, anon, authenticated;
-alter default privileges for role postgres in schema private revoke execute on functions from public, anon, authenticated;
+-- Fail closed for future objects: later migrations must grant browser/server access deliberately.
+alter default privileges for role postgres in schema public revoke select, insert, update, delete on tables from anon, authenticated, service_role;
+alter default privileges for role postgres in schema public revoke usage, select on sequences from anon, authenticated, service_role;
+alter default privileges for role postgres in schema public revoke execute on functions from public, anon, authenticated, service_role;
+alter default privileges for role postgres in schema private revoke all on tables from public, anon, authenticated, service_role;
+alter default privileges for role postgres in schema private revoke all on sequences from public, anon, authenticated, service_role;
+alter default privileges for role postgres in schema private revoke execute on functions from public, anon, authenticated, service_role;
 
 create or replace function private.has_staff_role(required_role private.staff_role, require_aal2 boolean default true)
 returns boolean
