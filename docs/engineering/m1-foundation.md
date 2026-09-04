@@ -19,13 +19,13 @@ Establish GitHub source control, reproducible local builds, CI verification, sta
 - [x] Netlify build/deploy-preview configuration added.
 - [x] Local setup documented.
 - [x] GitHub rulesets are active and target `main` and `staging` separately.
-- [ ] Required CI status check is enforced by both branch rulesets.
+- [x] Required `verify` CI status check is enforced by both branch rulesets.
 - [ ] Netlify project connected to GitHub with Deploy Previews verified from a pull request.
 - [x] Clean-clone CI run passes on GitHub-hosted runner.
 - [ ] Staging deployment smoke-tested.
 
 ## Validation note
 
-The hosted GitHub Actions CI job is named `verify`. This validation branch and pull request exist to exercise the `pull_request` workflow path so GitHub registers the check in branch-rule status-check selection and to provide regression evidence before M1 acceptance.
+GitHub pull-request and push workflows have both completed successfully with the hosted `verify` job. The Netlify `radicx` project is now linked to the repository and its current `main` deployment reports `ready`; this validation branch exists to verify that the GitHub linkage produces a real Deploy Preview before M1 acceptance.
 
 M1 must not be accepted until every blocking item above is verified. Generating files is not acceptance.
