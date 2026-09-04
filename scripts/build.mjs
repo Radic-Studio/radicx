@@ -10,6 +10,13 @@ const runtimeConfig = {
   supabasePublishableKey: String(process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? '').trim()
 };
 
+const isNetlifyBuild = String(process.env.NETLIFY ?? '').toLowerCase() === 'true';
+if (isNetlifyBuild && (!runtimeConfig.supabaseUrl || !runtimeConfig.supabasePublishableKey)) {
+  throw new Error(
+    'Netlify build is missing PUBLIC_SUPABASE_URL or PUBLIC_SUPABASE_PUBLISHABLE_KEY.'
+  );
+}
+
 await writeFile(
   'dist/assets/runtime-config.js',
   `window.__RADICX_CONFIG__ = Object.freeze(${JSON.stringify(runtimeConfig)});\n`,
