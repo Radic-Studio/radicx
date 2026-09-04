@@ -25,21 +25,45 @@ const html = `<!doctype html>
 <html lang="en" data-m6-storage="running">
 <head><meta charset="utf-8"><title>M6 storage smoke</title></head>
 <body>
+<script>
+  window.__m6ReportSent = false;
+  window.__m6Report = async function(payload) {
+    if (window.__m6ReportSent) return;
+    window.__m6ReportSent = true;
+    document.documentElement.dataset.m6Storage = payload.status;
+    if (payload.status !== 'pass') document.body.textContent = JSON.stringify(payload);
+    try {
+      await fetch('/__m6_result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch {
+      // The Node-side timeout remains the final failure signal if the callback cannot be delivered.
+    }
+  };
+  window.addEventListener('error', function(event) {
+    void window.__m6Report({ status: 'error', error: event.message || 'browser script error' });
+  });
+  window.addEventListener('unhandledrejection', function(event) {
+    void window.__m6Report({ status: 'error', error: String(event.reason?.stack || event.reason || 'unhandled rejection') });
+  });
+</script>
 <script type="module">
-import {
-  STUDY_DB_STORES,
-  cacheStudyPackage,
-  ensureStudyUser,
-  getCachedStudyPackage,
-  listAnswerOutbox,
-  listBookmarkOutbox,
-  openStudyDb,
-  queueAnswerOperation,
-  queueBookmarkOperation,
-  setLocalSelection
-} from './assets/m6/study-db.js';
-
 try {
+  const {
+    STUDY_DB_STORES,
+    cacheStudyPackage,
+    ensureStudyUser,
+    getCachedStudyPackage,
+    listAnswerOutbox,
+    listBookmarkOutbox,
+    openStudyDb,
+    queueAnswerOperation,
+    queueBookmarkOperation,
+    setLocalSelection
+  } = await import('./assets/m6/study-db.js');
+
   const userId = 'browser-smoke-user';
   const sessionId = 'browser-smoke-session';
   await ensureStudyUser(userId);
@@ -114,13 +138,18 @@ try {
     && storesMatch
     && noAnswerKey;
 
-  document.documentElement.dataset.m6Storage = pass ? 'pass' : 'fail';
-  if (!pass) {
-    document.body.textContent = JSON.stringify({ actualStores, expectedStores, cached, answers, bookmarks, noAnswerKey });
-  }
+  await window.__m6Report({
+    status: pass ? 'pass' : 'fail',
+    actualStores,
+    expectedStores,
+    selectedOption: cached?.localSession?.items?.['1']?.selectedOption ?? null,
+    confidence: cached?.localSession?.items?.['1']?.confidence ?? null,
+    answerOutboxCount: answers.length,
+    bookmarkOutboxCount: bookmarks.length,
+    noAnswerKey
+  });
 } catch (error) {
-  document.documentElement.dataset.m6Storage = 'error';
-  document.body.textContent = String(error?.stack ?? error);
+  await window.__m6Report({ status: 'error', error: String(error?.stack ?? error) });
 }
 </script>
 </body></html>`;
@@ -133,50 +162,42 @@ function contentType(filePath) {
   return 'application/octet-stream';
 }
 
-async function runChrome(url) {
+function readRequestBody(request) {
   return new Promise((resolve, reject) => {
-    const child = spawn(chrome, [
-      '--headless=new',
-      '--disable-gpu',
-      '--no-sandbox',
-      `--user-data-dir=${profileDir}`,
-      '--virtual-time-budget=4000',
-      '--dump-dom',
-      url
-    ], { stdio: ['ignore', 'pipe', 'pipe'] });
-
-    let stdout = '';
-    let stderr = '';
-    const timeout = setTimeout(() => {
-      child.kill('SIGKILL');
-      reject(new Error('M6 browser storage smoke timed out waiting for Chromium.'));
-    }, 15000);
-
-    child.stdout.setEncoding('utf8');
-    child.stderr.setEncoding('utf8');
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    child.stderr.on('data', (chunk) => { stderr += chunk; });
-    child.on('error', (error) => {
-      clearTimeout(timeout);
-      reject(error);
+    let body = '';
+    request.setEncoding('utf8');
+    request.on('data', (chunk) => {
+      body += chunk;
+      if (body.length > 1024 * 1024) reject(new Error('M6 browser smoke callback exceeded the size limit.'));
     });
-    child.on('close', (code) => {
-      clearTimeout(timeout);
-      if (code !== 0) {
-        reject(new Error(`Chromium exited with code ${code}.\n${stderr}`));
-        return;
-      }
-      resolve({ stdout, stderr });
-    });
+    request.on('end', () => resolve(body));
+    request.on('error', reject);
   });
 }
 
+let resolveBrowserResult;
+let rejectBrowserResult;
+const browserResult = new Promise((resolve, reject) => {
+  resolveBrowserResult = resolve;
+  rejectBrowserResult = reject;
+});
+
 await writeFile(fixture, html, 'utf8');
 let server;
+let browser;
 try {
   server = createServer(async (request, response) => {
     try {
       const requestUrl = new URL(request.url ?? '/', 'http://127.0.0.1');
+      if (requestUrl.pathname === '/__m6_result' && request.method === 'POST') {
+        const body = await readRequestBody(request);
+        const result = JSON.parse(body);
+        response.writeHead(204, { 'Cache-Control': 'no-store' });
+        response.end();
+        resolveBrowserResult(result);
+        return;
+      }
+
       const relativePath = decodeURIComponent(requestUrl.pathname).replace(/^\/+/, '') || 'm6-storage-smoke.html';
       const filePath = path.resolve(distRoot, relativePath);
       if (filePath !== distRoot && !filePath.startsWith(`${distRoot}${path.sep}`)) {
@@ -189,8 +210,10 @@ try {
         'Cache-Control': 'no-store'
       });
       response.end(body);
-    } catch {
-      response.writeHead(404).end('Not found');
+    } catch (error) {
+      response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      response.end('Not found');
+      if (request.url === '/__m6_result') rejectBrowserResult(error);
     }
   });
 
@@ -201,14 +224,37 @@ try {
   const address = server.address();
   if (!address || typeof address === 'string') throw new Error('M6 browser storage smoke could not determine its loopback port.');
 
-  const { stdout, stderr } = await runChrome(`http://127.0.0.1:${address.port}/m6-storage-smoke.html`);
-  if (!/data-m6-storage="pass"/.test(stdout)) {
-    console.error(stdout);
-    if (stderr) console.error(stderr);
-    throw new Error('M6 IndexedDB persistence/outbox browser smoke failed.');
+  browser = spawn(chrome, [
+    '--headless=new',
+    '--disable-gpu',
+    '--no-sandbox',
+    '--disable-dev-shm-usage',
+    '--remote-debugging-port=0',
+    `--user-data-dir=${profileDir}`,
+    `http://127.0.0.1:${address.port}/m6-storage-smoke.html`
+  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+
+  let browserStderr = '';
+  browser.stderr.setEncoding('utf8');
+  browser.stderr.on('data', (chunk) => { browserStderr += chunk; });
+  browser.once('error', rejectBrowserResult);
+  browser.once('exit', (code, signal) => {
+    if (code !== null && code !== 0) {
+      rejectBrowserResult(new Error(`Chromium exited before reporting the M6 storage result (${code ?? signal}).\n${browserStderr}`));
+    }
+  });
+
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error(`M6 browser storage smoke timed out waiting for the real-browser callback.\n${browserStderr}`)), 20000);
+  });
+  const result = await Promise.race([browserResult, timeout]);
+
+  if (result?.status !== 'pass') {
+    throw new Error(`M6 IndexedDB persistence/outbox browser smoke failed: ${JSON.stringify(result)}`);
   }
   console.log('M6 real-browser IndexedDB persistence/outbox smoke passed on a loopback HTTP origin.');
 } finally {
+  if (browser && browser.exitCode === null) browser.kill('SIGTERM');
   if (server) await new Promise((resolve) => server.close(resolve));
   await rm(fixture, { force: true });
   await rm(profileDir, { recursive: true, force: true });
