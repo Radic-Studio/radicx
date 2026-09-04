@@ -4,6 +4,18 @@ All notable RadicX implementation changes are recorded here by milestone.
 
 ## [Unreleased]
 
+### M4 — Question Intelligence & Admin
+
+- Added managed cognitive-level and clinical-task taxonomy tables while preserving the accepted M2 curriculum hierarchy.
+- Added restricted source-governance, question-governance, review, import-staging and content-audit domains.
+- Added deterministic question fingerprints, duplicate detection and one-open-revision-per-group protection.
+- Added AAL2 + private-staff-role guarded RPCs for taxonomy, sources, question creation, answer-key updates, review submission, role-specific review decisions, publication, revisioning, quarantine and structured imports.
+- Added server-authoritative publication gates covering rights, clinical review, item review, enhanced high-risk review, taxonomy and private answer-key presence.
+- Extended published-question immutability to M4 risk/fingerprint fields and preserved historical revisions.
+- Added staff-scoped private Storage policies for admin uploads and restricted source evidence.
+- Upgraded the Admin shell into the M4 content-governance workspace without exposing stored answer keys or introducing M5+ business logic.
+- Added M4 Node regression tests, pgTAP authorization/content-governance tests and engineering documentation.
+
 ### M3 — Design System & Application Shell
 
 - Added RadicX semantic colour, typography, spacing, radii, elevation, motion and responsive tokens.
