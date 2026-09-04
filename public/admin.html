@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#F7F8FA" />
     <meta name="robots" content="noindex,nofollow" />
-    <meta name="description" content="RadicX M3 administrative application shell." />
-    <title>Admin shell · RadicX</title>
+    <meta name="description" content="RadicX M4 question intelligence and content administration workspace." />
+    <title>Question Intelligence Admin · RadicX</title>
     <link rel="stylesheet" href="/assets/styles.css" />
   </head>
   <body class="admin-shell">
@@ -20,35 +20,35 @@
       <a class="radic-brand" href="/" aria-label="RadicX home"><span class="radic-brand__mark" aria-hidden="true">R</span><span>RadicX Admin</span></a>
       <div class="admin-nav-group">
         <p class="admin-nav-group__label">Content</p>
-        <a class="radic-nav-link" href="#workspace" aria-current="page">Questions</a>
-        <a class="radic-nav-link" href="#workspace">Reviews</a>
-        <a class="radic-nav-link" href="#workspace">Sources</a>
-        <a class="radic-nav-link" href="#workspace">Imports</a>
-        <a class="radic-nav-link" href="#workspace">Reports</a>
+        <a class="radic-nav-link" href="#questions" aria-current="page">Questions</a>
+        <a class="radic-nav-link" href="#reviews">Reviews</a>
+        <a class="radic-nav-link" href="#sources">Sources</a>
+        <a class="radic-nav-link" href="#imports">Imports</a>
+        <a class="radic-nav-link" href="#governance">Governance</a>
       </div>
       <div class="admin-nav-group">
         <p class="admin-nav-group__label">Assessment</p>
-        <a class="radic-nav-link" href="#workspace">Exam Profiles</a>
-        <a class="radic-nav-link" href="#workspace">Blueprints</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Exam Profiles</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Blueprints</a>
       </div>
       <div class="admin-nav-group">
         <p class="admin-nav-group__label">Users</p>
-        <a class="radic-nav-link" href="#workspace">Students</a>
-        <a class="radic-nav-link" href="#workspace">Support</a>
-        <a class="radic-nav-link" href="#workspace">Abuse</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Students</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Support</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Abuse</a>
       </div>
       <div class="admin-nav-group">
         <p class="admin-nav-group__label">Analytics</p>
-        <a class="radic-nav-link" href="#workspace">Learning</a>
-        <a class="radic-nav-link" href="#workspace">Question Quality</a>
-        <a class="radic-nav-link" href="#workspace">Platform</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Learning</a>
+        <a class="radic-nav-link" href="#governance">Question Quality</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Platform</a>
       </div>
       <div class="admin-nav-group">
         <p class="admin-nav-group__label">System</p>
-        <a class="radic-nav-link" href="#workspace">Jobs</a>
-        <a class="radic-nav-link" href="#workspace">Audit Log</a>
-        <a class="radic-nav-link" href="#workspace">Releases</a>
-        <a class="radic-nav-link" href="#workspace">Settings</a>
+        <a class="radic-nav-link" href="#governance">Audit Log</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Jobs</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Releases</a>
+        <a class="radic-nav-link" href="#future-milestones" aria-disabled="true">Settings</a>
       </div>
     </aside>
 
@@ -56,31 +56,110 @@
       <div class="radic-sheet__body radic-stack">
         <div class="radic-sheet__header"><h2 id="admin-menu-title">Admin navigation</h2><button class="radic-button radic-button--ghost" type="button" data-sheet-close>Close</button></div>
         <nav aria-label="Mobile admin navigation">
-          <a class="radic-nav-link" href="#workspace">Questions</a><a class="radic-nav-link" href="#workspace">Reviews</a><a class="radic-nav-link" href="#workspace">Sources</a><a class="radic-nav-link" href="#workspace">Imports</a><a class="radic-nav-link" href="#workspace">Reports</a>
-          <a class="radic-nav-link" href="#workspace">Exam Profiles</a><a class="radic-nav-link" href="#workspace">Blueprints</a><a class="radic-nav-link" href="#workspace">Students</a><a class="radic-nav-link" href="#workspace">Support</a><a class="radic-nav-link" href="#workspace">Abuse</a>
-          <a class="radic-nav-link" href="#workspace">Learning</a><a class="radic-nav-link" href="#workspace">Question Quality</a><a class="radic-nav-link" href="#workspace">Platform</a><a class="radic-nav-link" href="#workspace">Jobs</a><a class="radic-nav-link" href="#workspace">Audit Log</a><a class="radic-nav-link" href="#workspace">Releases</a><a class="radic-nav-link" href="#workspace">Settings</a>
+          <a class="radic-nav-link" href="#questions">Questions</a>
+          <a class="radic-nav-link" href="#reviews">Reviews</a>
+          <a class="radic-nav-link" href="#sources">Sources</a>
+          <a class="radic-nav-link" href="#imports">Imports</a>
+          <a class="radic-nav-link" href="#governance">Governance</a>
         </nav>
       </div>
     </dialog>
 
     <main class="admin-main" id="admin-main">
-      <div class="admin-workspace" id="workspace">
+      <div class="admin-workspace" id="workspace" data-m4-admin-workspace>
         <header class="admin-page-header">
           <div>
-            <p class="radic-eyebrow">Content</p>
-            <h1 class="radic-page-heading">Questions</h1>
-            <p>Administrative workflow shell only. M4 owns taxonomy, question intelligence, sources, imports, review gates and publication behavior.</p>
+            <p class="radic-eyebrow">M4 · Question Intelligence &amp; Admin</p>
+            <h1 class="radic-page-heading">Content governance workspace</h1>
+            <p>Taxonomy, provenance, imports, review gates, revisioning and quarantine are server-authoritative. Stored answer keys never render on this surface.</p>
           </div>
-          <div class="admin-toolbar" aria-label="Administrative action placeholders">
-            <button class="radic-button radic-button--secondary" type="button" disabled>Import</button>
-            <button class="radic-button radic-button--primary" type="button" disabled>New question</button>
+          <div class="admin-toolbar" aria-label="M4 security posture">
+            <span class="radic-badge radic-badge--review">AAL2 staff only</span>
+            <span class="radic-badge radic-badge--neutral">No direct private-table access</span>
           </div>
         </header>
-        <section class="admin-work-area" aria-labelledby="admin-placeholder-title">
-          <div class="radic-empty-state">
-            <div class="radic-empty-state__mark" aria-hidden="true">RX</div>
-            <h2 id="admin-placeholder-title">Workflow intentionally unavailable in M3</h2>
-            <p class="radic-supporting-text">The shell establishes hierarchy, width, navigation and component language without faking M4 business functionality.</p>
+
+        <section class="radic-card radic-card--quiet" id="questions" aria-labelledby="questions-title">
+          <div class="radic-card__body radic-stack">
+            <div>
+              <p class="radic-eyebrow">Question workflow</p>
+              <h2 id="questions-title">Capture to publication</h2>
+              <p class="radic-supporting-text">Published revisions are immutable. Corrections create a new draft revision tied to the exact historical content it supersedes.</p>
+            </div>
+            <ol class="m4-flow" aria-label="Question publication workflow">
+              <li>Capture</li><li>Author / Transcribe</li><li>Duplicate Check</li><li>Rights Check</li><li>Clinical Review</li><li>Item Review</li><li>Approve</li><li>Publish</li><li>Live Analysis</li>
+            </ol>
+            <div class="m4-grid">
+              <div class="m4-panel"><strong>Classification</strong><span>Curriculum domain → topic/subtopic → cognitive level → clinical task</span></div>
+              <div class="m4-panel"><strong>High-risk content</strong><span>High-risk questions require an enhanced clinical approval before publication.</span></div>
+              <div class="m4-panel"><strong>Answer-key boundary</strong><span>Correct options and private explanations remain in <code>private.question_keys</code>.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="radic-card radic-card--quiet" id="reviews" aria-labelledby="reviews-title">
+          <div class="radic-card__body radic-stack">
+            <div>
+              <p class="radic-eyebrow">Publication gates</p>
+              <h2 id="reviews-title">Independent approvals before publish</h2>
+            </div>
+            <div class="m4-gate-grid" role="list" aria-label="Required publication checks">
+              <div class="m4-gate" role="listitem"><span class="radic-badge radic-badge--neutral">1</span><strong>Rights</strong><span>Usable rights status plus content-admin approval.</span></div>
+              <div class="m4-gate" role="listitem"><span class="radic-badge radic-badge--neutral">2</span><strong>Clinical</strong><span>Clinical reviewer approval; enhanced review for high-risk items.</span></div>
+              <div class="m4-gate" role="listitem"><span class="radic-badge radic-badge--neutral">3</span><strong>Item quality</strong><span>Item reviewer approval for construction, ambiguity and distractors.</span></div>
+              <div class="m4-gate" role="listitem"><span class="radic-badge radic-badge--neutral">4</span><strong>Taxonomy</strong><span>Active cognitive-level and clinical-task classifications.</span></div>
+              <div class="m4-gate" role="listitem"><span class="radic-badge radic-badge--neutral">5</span><strong>Private key</strong><span>A valid answer key must exist server-side without being returned to the browser.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="radic-card radic-card--quiet" id="sources" aria-labelledby="sources-title">
+          <div class="radic-card__body radic-stack">
+            <div>
+              <p class="radic-eyebrow">Sources &amp; provenance</p>
+              <h2 id="sources-title">Separate provenance from quality</h2>
+              <p class="radic-supporting-text">Past-question claims, licensing, clinical validity and item quality are independent dimensions. Restricted evidence stays behind the private boundary.</p>
+            </div>
+            <div class="m4-grid">
+              <div class="m4-panel"><strong>Source classes</strong><span>Verified Past Question · Reported Past Question · Licensed Question · RadicX Original · RadicX Clinical Scenario · AI-Assisted Draft</span></div>
+              <div class="m4-panel"><strong>Tracked dimensions</strong><span>Provenance confidence · Rights status · Clinical validity · Item-writing quality · Educational relevance · Freshness</span></div>
+              <div class="m4-panel"><strong>Evidence storage</strong><span>Source evidence uses private Storage paths scoped to AAL2 content administrators.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="radic-card radic-card--quiet" id="imports" aria-labelledby="imports-title">
+          <div class="radic-card__body radic-stack">
+            <div>
+              <p class="radic-eyebrow">Import staging</p>
+              <h2 id="imports-title">Structured imports never publish directly</h2>
+              <p class="radic-supporting-text">Batch fingerprints make ingestion idempotent. Row fingerprints catch duplicates before any imported content can become a draft question.</p>
+            </div>
+            <ol class="m4-flow" aria-label="Structured import workflow">
+              <li>Upload</li><li>Parse</li><li>Map</li><li>Validate</li><li>Preview</li><li>Dedupe</li><li>Staging</li><li>Review</li><li>Draft</li>
+            </ol>
+            <p class="radic-sync-state radic-sync-state--neutral"><span class="radic-status-dot" aria-hidden="true"></span>Raw rows, mapping data and answer-bearing import payloads remain private.</p>
+          </div>
+        </section>
+
+        <section class="radic-card radic-card--quiet" id="governance" aria-labelledby="governance-title">
+          <div class="radic-card__body radic-stack">
+            <div>
+              <p class="radic-eyebrow">Safe administration</p>
+              <h2 id="governance-title">Revision, quarantine and audit</h2>
+            </div>
+            <div class="m4-grid">
+              <div class="m4-panel"><strong>Revision</strong><span>Published content is corrected by creating a new draft revision, not by mutating history.</span></div>
+              <div class="m4-panel"><strong>Quarantine</strong><span>Problematic published questions are quarantined rather than deleted.</span></div>
+              <div class="m4-panel"><strong>Audit</strong><span>Content-critical actions record actor, action, entity and structured details in an append-only private log.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="radic-card radic-card--quiet" id="future-milestones" aria-labelledby="future-title">
+          <div class="radic-card__body">
+            <h2 id="future-title">Outside M4</h2>
+            <p class="radic-supporting-text">Student authentication/onboarding, Study, Review, Mock Exam, Readiness, commerce and offline/PWA behavior remain assigned to later milestones. No M5 functionality is introduced here.</p>
           </div>
         </section>
       </div>
