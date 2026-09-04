@@ -137,7 +137,7 @@ test('cached navigation skips withdrawn questions and completion waits for autho
     }
   };
   assert.equal(nextNavigablePosition(questions, 1, local.items), 3);
-  assert.equal(previousNavigablePosition(questions, 3), 2);
+  assert.equal(previousNavigablePosition(questions, 3, local.items), 1);
   assert.deepEqual(localCompletionState(questions, local), {
     total: 2,
     pending: 1,
@@ -189,6 +189,7 @@ test('Study Home exposes only M6 modes and labels Weak Areas as unavailable', as
 
 test('Study question surface contains accessible answer, confidence, report, sync and completion controls', async () => {
   const html = await readFile('public/focus.html', 'utf8');
+  const controller = await readFile('src/m6/study-session.js', 'utf8');
   assert.match(html, /<fieldset class="m6-answer-group"/);
   assert.match(html, /Choose one answer/);
   assert.match(html, /How confident are you/);
@@ -198,7 +199,7 @@ test('Study question surface contains accessible answer, confidence, report, syn
   assert.match(html, /aria-pressed="false"/);
   assert.match(html, /aria-live="polite"/);
   assert.match(html, /<dialog[^>]+aria-labelledby="report-title"/);
-  assert.match(html, /Finish Study/);
+  assert.match(controller, /Finish Study/);
   assert.doesNotMatch(html, /timer|pass probability|mastery|readiness|momentum/i);
 });
 
