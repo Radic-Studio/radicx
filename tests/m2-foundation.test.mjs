@@ -11,6 +11,7 @@ const requiredM2Files = [
   'supabase/migrations/20260904030300_m2_published_question_immutability.sql',
   'supabase/tests/001_schema_integrity.sql',
   'supabase/tests/002_rls_security.sql',
+  'supabase/tests/003_content_storage_integrity.sql',
   '.github/workflows/database.yml',
   'docs/engineering/m2-supabase-foundation.md'
 ];
