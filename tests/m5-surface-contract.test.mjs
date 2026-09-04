@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const authPages = ['login', 'signup', 'verify-email', 'forgot-password', 'reset-password', 'auth-callback'];
-const protectedPages = ['student', 'focus', 'exam', 'onboarding'];
+const protectedPages = ['student', 'study', 'focus', 'exam', 'onboarding'];
 
 async function read(path) {
   return readFile(path, 'utf8');
@@ -29,9 +29,9 @@ test('protected student surfaces start hidden behind explicit auth loading state
   }
 });
 
-test('student dashboard states later milestone ownership instead of fabricating metrics', async () => {
+test('student dashboard continues to defer later learning metrics after Study activation', async () => {
   const html = await read('public/student.html');
-  assert.match(html, /Readiness is not available in M5/);
+  assert.match(html, /Readiness is not available yet/);
   assert.match(html, /M9 owns readiness/);
   assert.match(html, /M7/);
   assert.doesNotMatch(html, /\b[0-9]{1,3}%\b/);
