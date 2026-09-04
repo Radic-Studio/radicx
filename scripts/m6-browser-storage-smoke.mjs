@@ -51,6 +51,8 @@ const html = `<!doctype html>
 </script>
 <script type="module">
 try {
+  const dbModule = await import('./assets/m6/study-db.js');
+  const { syncStudyOutboxes } = await import('./assets/m6/study-sync.js');
   const {
     STUDY_DB_STORES,
     cacheStudyPackage,
@@ -58,42 +60,18 @@ try {
     getCachedStudyPackage,
     listAnswerOutbox,
     listBookmarkOutbox,
+    markLocalAnswerPending,
     openStudyDb,
     queueAnswerOperation,
     queueBookmarkOperation,
+    setLocalBookmark,
+    setLocalPosition,
     setLocalSelection
-  } = await import('./assets/m6/study-db.js');
+  } = dbModule;
 
   const userId = 'browser-smoke-user';
   const sessionId = 'browser-smoke-session';
-  await ensureStudyUser(userId);
-  await cacheStudyPackage(userId, {
-    session: {
-      id: sessionId,
-      study_kind: 'quick',
-      target_question_count: 5,
-      current_position: 1,
-      device_version: 1,
-      status: 'active'
-    },
-    questions: [{
-      position: 1,
-      question_id: 'browser-question-1',
-      revision_id: 'browser-question-1',
-      revision_number: 2,
-      state: 'assigned',
-      available: true,
-      stem: 'Browser-safe cached question',
-      options: ['A','B','C','D'],
-      subject_id: 'subject-1',
-      subject_name: 'Subject',
-      topic_id: null,
-      topic_name: null,
-      bookmarked: false
-    }]
-  });
-  await setLocalSelection(userId, sessionId, 1, { selectedOption: 2, confidence: 3 });
-  await queueAnswerOperation(userId, {
+  const answerOperation = {
     operationId: 'answer-op-1',
     sessionId,
     questionId: 'browser-question-1',
@@ -102,8 +80,8 @@ try {
     confidence: 3,
     deviceVersion: 1,
     queuedAt: 1
-  });
-  await queueBookmarkOperation(userId, {
+  };
+  const bookmarkOperation = {
     operationId: 'bookmark-op-1',
     sessionId,
     questionId: 'browser-question-1',
@@ -111,43 +89,229 @@ try {
     bookmarked: true,
     sequence: 1,
     deviceVersion: 1,
-    queuedAt: 1
-  });
+    queuedAt: 2
+  };
+  const phase = sessionStorage.getItem('m6-storage-phase') || 'queue';
 
-  const cached = await getCachedStudyPackage(userId, sessionId);
-  const answers = await listAnswerOutbox(userId, sessionId);
-  const bookmarks = await listBookmarkOutbox(userId, sessionId);
-  const db = await openStudyDb();
-  const actualStores = Array.from(db.objectStoreNames).sort();
-  db.close();
-  const expectedStores = [...STUDY_DB_STORES].sort();
-  const storesMatch = actualStores.length === expectedStores.length
-    && expectedStores.every((name, index) => actualStores[index] === name);
-  const serializedWorkingState = JSON.stringify({ cached, answers, bookmarks });
-  const noAnswerKey = !serializedWorkingState.includes('correct_option')
-    && !serializedWorkingState.includes('explanation_private')
-    && !serializedWorkingState.includes('private.question_keys');
-  const pass = cached?.questions?.length === 1
-    && cached?.localSession?.items?.['1']?.selectedOption === 2
-    && cached?.localSession?.items?.['1']?.confidence === 3
-    && answers.length === 1
-    && answers[0]?.selectedOption === 2
-    && answers[0]?.confidence === 3
-    && bookmarks.length === 1
-    && bookmarks[0]?.bookmarked === true
-    && storesMatch
-    && noAnswerKey;
+  if (phase === 'queue') {
+    await ensureStudyUser(userId);
+    await cacheStudyPackage(userId, {
+      session: {
+        id: sessionId,
+        study_kind: 'quick',
+        target_question_count: 2,
+        current_position: 1,
+        device_version: 1,
+        status: 'active'
+      },
+      questions: [
+        {
+          position: 1,
+          question_id: 'browser-question-1',
+          revision_id: 'browser-question-1',
+          revision_number: 2,
+          state: 'assigned',
+          available: true,
+          stem: 'Browser-safe cached question one',
+          options: ['A','B','C','D'],
+          subject_id: 'subject-1',
+          subject_name: 'Subject',
+          topic_id: null,
+          topic_name: null,
+          bookmarked: false
+        },
+        {
+          position: 2,
+          question_id: 'browser-question-2',
+          revision_id: 'browser-question-2',
+          revision_number: 1,
+          state: 'assigned',
+          available: true,
+          stem: 'Browser-safe cached question two',
+          options: ['A','B','C','D'],
+          subject_id: 'subject-1',
+          subject_name: 'Subject',
+          topic_id: null,
+          topic_name: null,
+          bookmarked: false
+        }
+      ]
+    });
 
-  await window.__m6Report({
-    status: pass ? 'pass' : 'fail',
-    actualStores,
-    expectedStores,
-    selectedOption: cached?.localSession?.items?.['1']?.selectedOption ?? null,
-    confidence: cached?.localSession?.items?.['1']?.confidence ?? null,
-    answerOutboxCount: answers.length,
-    bookmarkOutboxCount: bookmarks.length,
-    noAnswerKey
-  });
+    await setLocalSelection(userId, sessionId, 1, { selectedOption: 2, confidence: 3 });
+    await markLocalAnswerPending(userId, sessionId, 1, answerOperation);
+    await queueAnswerOperation(userId, answerOperation);
+    await setLocalBookmark(userId, sessionId, 1, true);
+    await queueBookmarkOperation(userId, bookmarkOperation);
+
+    const navigationStarted = performance.now();
+    await setLocalPosition(userId, sessionId, 2);
+    const afterNavigation = await getCachedStudyPackage(userId, sessionId);
+    const cachedNavigationMs = performance.now() - navigationStarted;
+    const answers = await listAnswerOutbox(userId, sessionId);
+    const bookmarks = await listBookmarkOutbox(userId, sessionId);
+    const db = await openStudyDb();
+    const actualStores = Array.from(db.objectStoreNames).sort();
+    db.close();
+    const expectedStores = [...STUDY_DB_STORES].sort();
+    const storesMatch = actualStores.length === expectedStores.length
+      && expectedStores.every((name, index) => actualStores[index] === name);
+    const questionCacheText = JSON.stringify(afterNavigation?.questions ?? []);
+    const safeQuestionCache = !questionCacheText.includes('correct_option')
+      && !questionCacheText.includes('explanation_private')
+      && !questionCacheText.includes('private.question_keys');
+    const queuedCorrectly = afterNavigation?.localSession?.localPosition === 2
+      && afterNavigation?.localSession?.items?.['1']?.selectedOption === 2
+      && afterNavigation?.localSession?.items?.['1']?.confidence === 3
+      && afterNavigation?.localSession?.items?.['1']?.submissionState === 'pending'
+      && afterNavigation?.localSession?.items?.['1']?.feedback == null
+      && answers.length === 1
+      && bookmarks.length === 1
+      && storesMatch
+      && safeQuestionCache;
+
+    if (!queuedCorrectly) {
+      await window.__m6Report({
+        status: 'fail',
+        stage: 'queue',
+        actualStores,
+        expectedStores,
+        cachedNavigationMs,
+        answerOutboxCount: answers.length,
+        bookmarkOutboxCount: bookmarks.length,
+        safeQuestionCache,
+        localSession: afterNavigation?.localSession ?? null
+      });
+    } else {
+      sessionStorage.setItem('m6-storage-phase', 'resume');
+      location.reload();
+    }
+  } else {
+    const resumed = await getCachedStudyPackage(userId, sessionId);
+    const answersBefore = await listAnswerOutbox(userId, sessionId);
+    const bookmarksBefore = await listBookmarkOutbox(userId, sessionId);
+    const beforeText = JSON.stringify(resumed?.questions ?? []);
+    const safeQuestionCacheAfterRefresh = !beforeText.includes('correct_option')
+      && !beforeText.includes('explanation_private')
+      && !beforeText.includes('private.question_keys');
+    const pendingSurvivedRefresh = resumed?.localSession?.localPosition === 2
+      && resumed?.localSession?.items?.['1']?.submissionState === 'pending'
+      && resumed?.localSession?.items?.['1']?.selectedOption === 2
+      && resumed?.localSession?.items?.['1']?.confidence === 3
+      && resumed?.localSession?.items?.['1']?.feedback == null
+      && answersBefore.length === 1
+      && bookmarksBefore.length === 1;
+
+    let online = false;
+    Object.defineProperty(navigator, 'onLine', {
+      configurable: true,
+      get() { return online; }
+    });
+
+    const rpcCalls = [];
+    const fakeClient = {
+      async rpc(name, params) {
+        rpcCalls.push({ name, params });
+        if (name === 'study_submit_answer') {
+          return {
+            data: {
+              status: 'evaluated',
+              session_id: params.p_session_id,
+              question_id: params.p_question_id,
+              selected_option: params.p_selected_option,
+              confidence: params.p_confidence,
+              correct: false,
+              correct_option: 1,
+              explanation: 'Synthetic authoritative browser-smoke feedback.',
+              evaluated_at: '2026-09-04T21:00:00Z',
+              next_position: 2,
+              complete_ready: false
+            },
+            error: null
+          };
+        }
+        if (name === 'study_set_bookmark') {
+          return {
+            data: {
+              question_id: params.p_question_id,
+              bookmarked: params.p_is_bookmarked,
+              applied: true
+            },
+            error: null
+          };
+        }
+        return { data: null, error: { message: 'Unexpected browser-smoke RPC' } };
+      }
+    };
+
+    const offlineStatuses = [];
+    const offlineSync = await syncStudyOutboxes(fakeClient, userId, {
+      sessionId,
+      onStatus: (status) => offlineStatuses.push(status)
+    });
+    const stillPending = await getCachedStudyPackage(userId, sessionId);
+    const noOfflineCorrectness = offlineSync.blocked === 'offline'
+      && rpcCalls.length === 0
+      && stillPending?.localSession?.items?.['1']?.submissionState === 'pending'
+      && stillPending?.localSession?.items?.['1']?.feedback == null;
+
+    online = true;
+    const onlineStatuses = [];
+    const syncedAnswers = [];
+    const onlineSync = await syncStudyOutboxes(fakeClient, userId, {
+      sessionId,
+      onStatus: (status) => onlineStatuses.push(status),
+      onAnswer: (operation, result) => syncedAnswers.push({ operation, result })
+    });
+    const reconciled = await getCachedStudyPackage(userId, sessionId);
+    const answersAfter = await listAnswerOutbox(userId, sessionId);
+    const bookmarksAfter = await listBookmarkOutbox(userId, sessionId);
+    const replay = await syncStudyOutboxes(fakeClient, userId, { sessionId });
+
+    sessionStorage.removeItem('m6-storage-phase');
+    const browserStorageText = JSON.stringify({
+      localStorage: { ...localStorage },
+      sessionStorage: { ...sessionStorage }
+    });
+    const noPrivateBrowserStorage = !browserStorageText.includes('explanation_private')
+      && !browserStorageText.includes('private.question_keys');
+
+    const pass = pendingSurvivedRefresh
+      && safeQuestionCacheAfterRefresh
+      && noOfflineCorrectness
+      && offlineStatuses.includes('offline')
+      && onlineSync.answersSynced === 1
+      && onlineSync.bookmarksSynced === 1
+      && onlineSync.blocked == null
+      && onlineStatuses.at(-1) === 'saved'
+      && syncedAnswers.length === 1
+      && reconciled?.localSession?.items?.['1']?.submissionState === 'evaluated'
+      && reconciled?.localSession?.items?.['1']?.feedback?.correct === false
+      && reconciled?.localSession?.items?.['1']?.feedback?.correct_option === 1
+      && reconciled?.localSession?.items?.['1']?.bookmarked === true
+      && answersAfter.length === 0
+      && bookmarksAfter.length === 0
+      && replay.answersSynced === 0
+      && replay.bookmarksSynced === 0
+      && rpcCalls.length === 2
+      && noPrivateBrowserStorage;
+
+    await window.__m6Report({
+      status: pass ? 'pass' : 'fail',
+      stage: 'resume-reconcile',
+      pendingSurvivedRefresh,
+      safeQuestionCacheAfterRefresh,
+      noOfflineCorrectness,
+      offlineBlocked: offlineSync.blocked,
+      onlineSync,
+      answerOutboxAfter: answersAfter.length,
+      bookmarkOutboxAfter: bookmarksAfter.length,
+      replay,
+      rpcCallNames: rpcCalls.map((call) => call.name),
+      feedbackStatus: reconciled?.localSession?.items?.['1']?.submissionState ?? null,
+      noPrivateBrowserStorage
+    });
+  }
 } catch (error) {
   await window.__m6Report({ status: 'error', error: String(error?.stack ?? error) });
 }
@@ -264,15 +428,15 @@ try {
   });
 
   const timeout = new Promise((_, reject) => {
-    const timer = setTimeout(() => reject(new Error(`M6 browser storage smoke timed out waiting for the real-browser callback.\n${browserStderr}`)), 20000);
+    const timer = setTimeout(() => reject(new Error(`M6 browser storage smoke timed out waiting for the real-browser callback.\n${browserStderr}`)), 25000);
     timer.unref();
   });
   const result = await Promise.race([browserResult, timeout]);
 
   if (result?.status !== 'pass') {
-    throw new Error(`M6 IndexedDB persistence/outbox browser smoke failed: ${JSON.stringify(result)}`);
+    throw new Error(`M6 IndexedDB/offline/outbox browser smoke failed: ${JSON.stringify(result)}`);
   }
-  console.log('M6 real-browser IndexedDB persistence/outbox smoke passed on a loopback HTTP origin.');
+  console.log('M6 real-browser IndexedDB, offline refresh, outbox replay and authoritative reconciliation smoke passed on a loopback HTTP origin.');
 } finally {
   await stopBrowser(browser);
   if (server) await new Promise((resolve) => server.close(resolve));
