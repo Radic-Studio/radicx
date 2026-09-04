@@ -33,17 +33,13 @@ jobs:
       - name: Verify
         run: npm run verify
 
-      - name: Smoke-test Netlify deployment
-        if: github.event_name == 'pull_request' || github.ref_name == 'staging' || github.ref_name == 'main'
+      - name: Smoke-test Netlify branch deployment
+        if: github.event_name == 'push' && (github.ref_name == 'staging' || github.ref_name == 'main')
         shell: bash
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
           REF_NAME: ${{ github.ref_name }}
         run: |
-          if [[ "$EVENT_NAME" == "pull_request" ]]; then
-            url="https://deploy-preview-${PR_NUMBER}--radicx.netlify.app/"
-          elif [[ "$REF_NAME" == "staging" ]]; then
+          if [[ "$REF_NAME" == "staging" ]]; then
             url="https://staging--radicx.netlify.app/"
           else
             url="https://radicx.netlify.app/"
