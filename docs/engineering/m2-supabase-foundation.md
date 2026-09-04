@@ -13,7 +13,7 @@ M2 establishes the Supabase development/staging foundation for RadicX without im
 - Staging: hosted Supabase project, synthetic or sanitized data only.
 - Production: intentionally not provisioned in M2.
 
-The initial hosted staging target is London (`eu-west-2`). This is a defensible European starting region for Nigerian users, not proof of field latency. Nigerian network/device benchmarking remains a later acceptance activity.
+`RadicX Staging` is provisioned and healthy. Supabase reports its actual hosted region as `eu-west-1` (West Europe / Ireland). The project requirement is to use a defensible European region for Nigerian users; this placement does not by itself establish Nigerian field latency, which must be measured later on representative devices/networks.
 
 ## Migration architecture
 
@@ -54,11 +54,11 @@ Utilities: `bookmarks`, `question_reports`
 
 `staff_roles` stores authoritative staff authorization. Staff authority is not read from user-editable Auth metadata.
 
-The `private` schema is denied to `anon` and `authenticated`. Browser roles receive no direct answer-key or staff-role privileges. Trusted server operations use service-side credentials/functions only.
+The `private` schema is denied to `anon` and `authenticated`. Browser roles receive no direct answer-key or staff-role privileges. Both private tables also have RLS enabled with no browser policies, adding a fail-closed defense-in-depth layer if future grants or API exposure are ever misconfigured. Trusted server operations use service-side credentials/functions only.
 
 ## RLS model
 
-All exposed tables have RLS enabled.
+All exposed public tables have RLS enabled. Sensitive private tables also have RLS enabled without browser policies.
 
 Student-owned tables use `auth.uid()` ownership policies. Derived learning/readiness tables are readable by their owner but not directly writable by students because correctness, mastery, readiness and related derived values remain server-authoritative.
 
@@ -66,7 +66,7 @@ Curriculum is authenticated read-only. Published questions are authenticated rea
 
 `bookmarks` permit owner read/create/delete. `question_reports` permit owner read/create only; report status remains trusted/admin-managed.
 
-Cross-user tests verify that Student A cannot read or update Student B records, anonymous users cannot read profiles, students cannot read `private.question_keys`, and students cannot insert staff roles.
+Cross-user hosted checks verify that Student A cannot read or update Student B records, anonymous users cannot read profiles, students cannot read `private.question_keys`, and students cannot insert staff roles.
 
 ## Staff authorization and MFA architecture
 
@@ -80,29 +80,25 @@ Local configuration enables email/password sign-up, requires email confirmation,
 
 Google OAuth remains readiness-only until provider credentials and approved redirect URLs are configured. CAPTCHA/bot protection is also a hosted-environment configuration task; no CAPTCHA secret belongs in browser source or Git history. Production custom SMTP is deferred to publishing work, while M2 remains compatible with it.
 
+The connected Supabase management interface does not expose hosted Auth settings for direct verification. Hosted Auth configuration therefore requires one final dashboard validation before M2 acceptance.
+
 ## Storage foundation
 
-Declared private buckets:
+Hosted private buckets:
 
 - `question-media`: student-safe question media. Private by default; authenticated reads are allowed through Storage RLS when content is intentionally delivered.
 - `source-evidence`: restricted provenance/source evidence. No browser policy in M2.
 - `admin-uploads`: protected administrative imports. No browser policy in M2.
 
+Hosted validation confirms all three buckets are private and carry the intended size/MIME restrictions. `source-evidence` and `admin-uploads` have no browser policies.
+
 Source scans and restricted evidence must never be made public. Storage metadata is controlled through Supabase and RLS; object operations should use the Storage API rather than direct manipulation of `storage.objects` metadata.
 
 ## Index rationale
 
-Indexes target expected access paths rather than indexing every foreign key mechanically:
+Indexes target expected access paths rather than indexing every column mechanically. They cover curriculum traversal, question selection/revisions, session ownership, review scheduling, report triage, and foreign-key paths identified by Performance Advisor.
 
-- subjects by programme/order;
-- topics by subject/parent/order;
-- published question selection by subject/topic/status/random bucket;
-- question revision lookup;
-- active/recent sessions by owner/status/activity;
-- due-review lookup for `user_question_state`;
-- report triage by question/status/time.
-
-Primary-key/unique indexes already cover `profiles(user_id)`, `bookmarks(user_id, question_id)`, session-answer uniqueness and subject/topic summary ownership; duplicate indexes are intentionally avoided.
+Performance Advisor's unindexed-foreign-key notices were remediated by `20260904054500_m2_advisor_indexes.sql`. Remaining unused-index notices are informational on a newly provisioned, low-traffic staging database and are not evidence that the indexes should be removed before representative workloads exist.
 
 ## Key strategy
 
@@ -110,21 +106,22 @@ Browser code uses only the project URL and current Supabase publishable key (`sb
 
 ## Testing and CI
 
-`.github/workflows/database.yml` starts a clean local Supabase stack, resets from migrations + seed, runs database lint, executes pgTAP tests, and verifies TypeScript type generation. Generated types are uploaded as a short-lived CI artifact until the first verified hosted/local generation is committed and consistency enforcement is enabled.
+`.github/workflows/database.yml` starts a clean local Supabase stack, resets from migrations + seed, runs database lint, executes pgTAP tests, and verifies TypeScript type generation. Generated types are uploaded as a short-lived CI artifact until an application layer consumes them; M2 does not commit unused generated application types merely for ceremony.
 
 A passing test against manually modified hosted state is not acceptance evidence. M2 tests must pass after a clean reset.
 
-## Hosted staging validation checklist
+## Hosted staging validation status
 
-After project provisioning is available:
+Completed:
 
-1. apply repository migrations in order;
-2. load only synthetic M2 seed fixtures;
-3. verify email confirmation and recovery configuration;
-4. verify phone auth remains disabled;
-5. obtain/use a modern publishable key only in browser configuration;
-6. verify private buckets and storage policies;
-7. run cross-user authorization/security tests;
-8. generate and commit TypeScript database types;
-9. run Security Advisor and Performance Advisor;
-10. resolve M2-relevant critical/high findings before acceptance.
+1. repository migrations applied in order;
+2. synthetic M2 seed fixtures loaded;
+3. modern publishable-key availability confirmed without exposing privileged keys;
+4. private buckets and Storage policies verified;
+5. cross-user authorization/security checks passed;
+6. generated TypeScript types verified;
+7. Security Advisor reviewed;
+8. Performance Advisor reviewed and foreign-key findings remediated;
+9. private answer-key and staff-role RLS defense-in-depth enabled after explicit approval.
+
+Remaining before M2 acceptance: hosted Auth dashboard settings verification and a green final CI/regression run on the latest branch head.
