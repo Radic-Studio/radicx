@@ -5,21 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#FCFCFD" />
     <meta name="robots" content="noindex,nofollow" />
-    <title>RadicX Engineering Foundation</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <meta name="description" content="RadicX M3 public application shell preview." />
+    <title>RadicX — Know your readiness</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
   </head>
-  <body>
-    <main class="foundation-shell">
-      <section class="foundation-card" aria-labelledby="foundation-title">
-        <p class="eyebrow">RadicX V1</p>
-        <h1 id="foundation-title">Engineering foundation active</h1>
-        <p>
-          This temporary M1 shell exists only to verify repository, CI, preview, and local-build infrastructure.
-          Product UI begins in the approved design-system milestone.
-        </p>
-        <p class="status" role="status">M1 foundation build</p>
+  <body class="public-shell">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="public-header">
+      <div class="radic-container public-header__inner">
+        <a class="radic-brand" href="/" aria-label="RadicX home">
+          <span class="radic-brand__mark" aria-hidden="true">R</span>
+          <span>RadicX</span>
+        </a>
+        <nav class="public-nav" aria-label="Public navigation">
+          <a href="#why">Why RadicX</a>
+          <a href="#experience">Experience</a>
+          <a href="/design-system.html">Design system</a>
+          <a class="radic-button radic-button--secondary" href="/student.html">Application shell</a>
+        </nav>
+        <button class="radic-button radic-button--icon public-mobile-trigger" type="button" aria-label="Open navigation" data-mobile-menu="public-menu">☰</button>
+      </div>
+    </header>
+
+    <dialog class="radic-sheet" id="public-menu" aria-labelledby="public-menu-title">
+      <div class="radic-sheet__body radic-stack">
+        <div class="radic-sheet__header">
+          <h2 id="public-menu-title">Navigate</h2>
+          <button class="radic-button radic-button--ghost" type="button" data-sheet-close>Close</button>
+        </div>
+        <nav aria-label="Mobile public navigation">
+          <a class="radic-nav-link" href="#why">Why RadicX</a>
+          <a class="radic-nav-link" href="#experience">Experience</a>
+          <a class="radic-nav-link" href="/design-system.html">Design system</a>
+          <a class="radic-nav-link" href="/student.html">Application shell</a>
+        </nav>
+      </div>
+    </dialog>
+
+    <main id="main-content">
+      <section class="public-hero">
+        <div class="radic-container public-hero__grid">
+          <div class="public-hero__copy">
+            <p class="radic-eyebrow">NMCN Midwifery CBT preparation</p>
+            <h1 class="radic-display">Do not just practise. <span class="radic-prism-text">Know your readiness.</span></h1>
+            <p class="public-hero__lede">RadicX is being built as a calm, evidence-aware learning platform where practice, review and realistic CBT simulation become one coherent preparation system.</p>
+            <div class="public-hero__actions">
+              <a class="radic-button radic-button--primary" href="/student.html">View student shell</a>
+              <a class="radic-button radic-button--secondary" href="/design-system.html">Inspect M3 system</a>
+            </div>
+            <p class="radic-supporting-text" style="margin-top: 16px;">M3 visual foundation only. Student learning, authentication, exams and payments are deliberately not active yet.</p>
+          </div>
+          <aside class="prism-orbit" aria-label="Conceptual readiness visual">
+            <div class="prism-orbit__content">
+              <div>
+                <p class="radic-eyebrow">Clinical Luxury × Expressive Intelligence</p>
+                <h2>Quiet cognition. Selective expression.</h2>
+              </div>
+              <div class="prism-orbit__signal" aria-hidden="true">Readiness</div>
+              <p class="radic-supporting-text">The visual language stays mostly neutral, reserving the Radic Prism for interaction, progress and meaningful moments.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="public-section" id="why" aria-labelledby="why-title">
+        <div class="radic-container">
+          <div class="public-section__intro">
+            <p class="radic-eyebrow">The foundation</p>
+            <h2 id="why-title">Precision instead of interface noise.</h2>
+            <p>RadicX M3 establishes the visual and structural system that later milestones will use without pretending those later workflows already exist.</p>
+          </div>
+          <div class="public-principles">
+            <article class="public-principle">
+              <span class="public-principle__index">01 · Calm</span>
+              <h3>Neutral by default</h3>
+              <p>Porcelain, white, Ink and Slate carry most of the interface so the product feels clinical without resembling hospital administration software.</p>
+            </article>
+            <article class="public-principle">
+              <span class="public-principle__index">02 · Focus</span>
+              <h3>Cognition gets room</h3>
+              <p>Study and exam structures use generous spacing, focused reading widths and restrained controls rather than a dashboard glued around every question.</p>
+            </article>
+            <article class="public-principle">
+              <span class="public-principle__index">03 · Expression</span>
+              <h3>Prism with purpose</h3>
+              <p>Indigo, Violet and Aqua appear selectively for interaction, progress and meaningful feedback instead of turning every surface into a gradient.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="public-section radic-surface-muted" id="experience" aria-labelledby="experience-title">
+        <div class="radic-container">
+          <div class="public-section__intro">
+            <p class="radic-eyebrow">Shell architecture</p>
+            <h2 id="experience-title">One design language, different cognitive contexts.</h2>
+            <p>Public discovery, everyday student navigation, Focus Mode, realistic Exam Mode and administrative work each receive an appropriate shell while sharing the same tokens and primitives.</p>
+          </div>
+          <div class="radic-cluster">
+            <a class="radic-button radic-button--secondary" href="/student.html">Student shell</a>
+            <a class="radic-button radic-button--secondary" href="/focus.html">Focus shell</a>
+            <a class="radic-button radic-button--secondary" href="/exam.html">Exam shell</a>
+            <a class="radic-button radic-button--secondary" href="/admin.html">Admin shell</a>
+          </div>
+        </div>
       </section>
     </main>
-    <script type="module" src="/app.js"></script>
+
+    <footer class="public-footer">
+      <div class="radic-container public-footer__inner">
+        <a class="radic-brand" href="/" aria-label="RadicX home">
+          <span class="radic-brand__mark" aria-hidden="true">R</span>
+          <span>RadicX</span>
+        </a>
+        <p class="radic-supporting-text">Independent NMCN Midwifery CBT preparation platform. M3 implementation preview, not a public launch.</p>
+      </div>
+    </footer>
+
+    <div class="radic-toast-region" aria-live="polite" aria-atomic="true" data-toast-region></div>
+    <script type="module" src="/assets/app.js"></script>
   </body>
 </html>

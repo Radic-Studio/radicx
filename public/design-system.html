@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#FCFCFD" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="description" content="RadicX M3 design system development showcase." />
+    <title>Design system · RadicX</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#design-main">Skip to design system</a>
+    <header class="public-header">
+      <div class="radic-container public-header__inner">
+        <a class="radic-brand" href="/" aria-label="RadicX home"><span class="radic-brand__mark" aria-hidden="true">R</span><span>RadicX</span></a>
+        <nav class="public-nav" aria-label="Showcase navigation"><a href="#tokens">Tokens</a><a href="#components">Components</a><a href="#shells">Shells</a><a class="radic-button radic-button--secondary" href="/">Back to public shell</a></nav>
+        <button class="radic-button radic-button--icon public-mobile-trigger" type="button" aria-label="Open navigation" data-mobile-menu="showcase-menu">☰</button>
+      </div>
+    </header>
+    <dialog class="radic-sheet" id="showcase-menu" aria-labelledby="showcase-menu-title">
+      <div class="radic-sheet__body radic-stack"><div class="radic-sheet__header"><h2 id="showcase-menu-title">Design system</h2><button class="radic-button radic-button--ghost" type="button" data-sheet-close>Close</button></div><nav aria-label="Mobile showcase navigation"><a class="radic-nav-link" href="#tokens">Tokens</a><a class="radic-nav-link" href="#components">Components</a><a class="radic-nav-link" href="#shells">Shells</a><a class="radic-nav-link" href="/">Public shell</a></nav></div>
+    </dialog>
+
+    <main id="design-main">
+      <section class="public-section">
+        <div class="radic-container">
+          <p class="radic-eyebrow">M3 development showcase</p>
+          <h1 class="radic-page-heading">Clinical Luxury × Expressive Intelligence</h1>
+          <p style="max-width:720px;">This non-indexed route exists to inspect the shared visual language. It contains no student learning, authentication, exam, admin workflow or payment logic.</p>
+        </div>
+      </section>
+
+      <section class="public-section radic-surface-muted" id="tokens" aria-labelledby="tokens-title">
+        <div class="radic-container radic-stack">
+          <div><p class="radic-eyebrow">Tokens</p><h2 id="tokens-title" class="radic-section-heading">Colour, type, spacing and shape</h2></div>
+          <div class="public-principles">
+            <article class="public-principle"><span class="public-principle__index">Neutral foundation</span><h3>Porcelain · White · Cloud · Hairline</h3><p>Ink, Slate and Mist Text carry hierarchy while keeping the interface calm.</p></article>
+            <article class="public-principle"><span class="public-principle__index">Identity</span><h3><span class="radic-prism-text">Indigo · Violet · Aqua</span></h3><p>Interactive Prism uses Indigo to Violet. Ambient Prism may extend selectively to Aqua.</p></article>
+            <article class="public-principle"><span class="public-principle__index">Rhythm</span><h3>4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 · 48 · 64 · 80</h3><p>Radii: 10px small, 14px standard, 18px feature and pill where semantically appropriate.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="public-section" id="components" aria-labelledby="components-title">
+        <div class="radic-container radic-stack">
+          <div><p class="radic-eyebrow">Component foundation</p><h2 id="components-title" class="radic-section-heading">Reusable RadicX primitives</h2><p>Native browser semantics first, restrained CSS second. Humanity survives another component library decision.</p></div>
+          <div data-component-lab class="radic-stack"></div>
+        </div>
+      </section>
+
+      <section class="public-section radic-surface-muted" id="shells" aria-labelledby="shells-title">
+        <div class="radic-container">
+          <p class="radic-eyebrow">Application structure</p>
+          <h2 id="shells-title" class="radic-section-heading">Shell previews</h2>
+          <div class="radic-cluster"><a class="radic-button radic-button--secondary" href="/student.html">Student</a><a class="radic-button radic-button--secondary" href="/focus.html">Focus</a><a class="radic-button radic-button--secondary" href="/exam.html">Exam</a><a class="radic-button radic-button--secondary" href="/admin.html">Admin</a></div>
+        </div>
+      </section>
+    </main>
+    <div class="radic-toast-region" aria-live="polite" aria-atomic="true" data-toast-region></div>
+    <script type="module" src="/assets/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#F7F8FA" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="description" content="RadicX M3 administrative application shell." />
+    <title>Admin shell · RadicX</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body class="admin-shell">
+    <a class="skip-link" href="#admin-main">Skip to admin workspace</a>
+    <header class="admin-mobile-header">
+      <a class="radic-brand" href="/" aria-label="RadicX home"><span class="radic-brand__mark" aria-hidden="true">R</span><span>RadicX Admin</span></a>
+      <button class="radic-button radic-button--icon" type="button" aria-label="Open admin navigation" data-mobile-menu="admin-menu">☰</button>
+    </header>
+
+    <aside class="admin-sidebar" aria-label="Admin navigation">
+      <a class="radic-brand" href="/" aria-label="RadicX home"><span class="radic-brand__mark" aria-hidden="true">R</span><span>RadicX Admin</span></a>
+      <div class="admin-nav-group">
+        <p class="admin-nav-group__label">Content</p>
+        <a class="radic-nav-link" href="#workspace" aria-current="page">Questions</a>
+        <a class="radic-nav-link" href="#workspace">Reviews</a>
+        <a class="radic-nav-link" href="#workspace">Sources</a>
+        <a class="radic-nav-link" href="#workspace">Imports</a>
+        <a class="radic-nav-link" href="#workspace">Reports</a>
+      </div>
+      <div class="admin-nav-group">
+        <p class="admin-nav-group__label">Assessment</p>
+        <a class="radic-nav-link" href="#workspace">Exam Profiles</a>
+        <a class="radic-nav-link" href="#workspace">Blueprints</a>
+      </div>
+      <div class="admin-nav-group">
+        <p class="admin-nav-group__label">Users</p>
+        <a class="radic-nav-link" href="#workspace">Students</a>
+        <a class="radic-nav-link" href="#workspace">Support</a>
+        <a class="radic-nav-link" href="#workspace">Abuse</a>
+      </div>
+      <div class="admin-nav-group">
+        <p class="admin-nav-group__label">Analytics</p>
+        <a class="radic-nav-link" href="#workspace">Learning</a>
+        <a class="radic-nav-link" href="#workspace">Question Quality</a>
+        <a class="radic-nav-link" href="#workspace">Platform</a>
+      </div>
+      <div class="admin-nav-group">
+        <p class="admin-nav-group__label">System</p>
+        <a class="radic-nav-link" href="#workspace">Jobs</a>
+        <a class="radic-nav-link" href="#workspace">Audit Log</a>
+        <a class="radic-nav-link" href="#workspace">Releases</a>
+        <a class="radic-nav-link" href="#workspace">Settings</a>
+      </div>
+    </aside>
+
+    <dialog class="radic-sheet" id="admin-menu" aria-labelledby="admin-menu-title">
+      <div class="radic-sheet__body radic-stack">
+        <div class="radic-sheet__header"><h2 id="admin-menu-title">Admin navigation</h2><button class="radic-button radic-button--ghost" type="button" data-sheet-close>Close</button></div>
+        <nav aria-label="Mobile admin navigation">
+          <a class="radic-nav-link" href="#workspace">Questions</a><a class="radic-nav-link" href="#workspace">Reviews</a><a class="radic-nav-link" href="#workspace">Sources</a><a class="radic-nav-link" href="#workspace">Imports</a><a class="radic-nav-link" href="#workspace">Reports</a>
+          <a class="radic-nav-link" href="#workspace">Exam Profiles</a><a class="radic-nav-link" href="#workspace">Blueprints</a><a class="radic-nav-link" href="#workspace">Students</a><a class="radic-nav-link" href="#workspace">Support</a><a class="radic-nav-link" href="#workspace">Abuse</a>
+          <a class="radic-nav-link" href="#workspace">Learning</a><a class="radic-nav-link" href="#workspace">Question Quality</a><a class="radic-nav-link" href="#workspace">Platform</a><a class="radic-nav-link" href="#workspace">Jobs</a><a class="radic-nav-link" href="#workspace">Audit Log</a><a class="radic-nav-link" href="#workspace">Releases</a><a class="radic-nav-link" href="#workspace">Settings</a>
+        </nav>
+      </div>
+    </dialog>
+
+    <main class="admin-main" id="admin-main">
+      <div class="admin-workspace" id="workspace">
+        <header class="admin-page-header">
+          <div>
+            <p class="radic-eyebrow">Content</p>
+            <h1 class="radic-page-heading">Questions</h1>
+            <p>Administrative workflow shell only. M4 owns taxonomy, question intelligence, sources, imports, review gates and publication behavior.</p>
+          </div>
+          <div class="admin-toolbar" aria-label="Administrative action placeholders">
+            <button class="radic-button radic-button--secondary" type="button" disabled>Import</button>
+            <button class="radic-button radic-button--primary" type="button" disabled>New question</button>
+          </div>
+        </header>
+        <section class="admin-work-area" aria-labelledby="admin-placeholder-title">
+          <div class="radic-empty-state">
+            <div class="radic-empty-state__mark" aria-hidden="true">RX</div>
+            <h2 id="admin-placeholder-title">Workflow intentionally unavailable in M3</h2>
+            <p class="radic-supporting-text">The shell establishes hierarchy, width, navigation and component language without faking M4 business functionality.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="/assets/app.js"></script>
+  </body>
+</html>
