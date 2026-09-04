@@ -4,9 +4,9 @@ Date: 2026-09-04
 
 ## Status
 
-**NEEDS CORRECTION / INDEPENDENT MANUAL VALIDATION PENDING**
+**PASS — ACCEPTED**
 
-The M3 implementation, automated verification, database regression and Netlify Deploy Preview gates are green. M3 is intentionally not declared accepted yet because the Project Brief requires manual keyboard testing and responsive visual validation at the approved breakpoints. Those browser-observation checks must be independently completed before the milestone can move to PASS.
+The M3 implementation, automated verification, database regression, Netlify Deploy Preview gates, independent manual keyboard testing, responsive visual validation and staging reachability checks have all passed. M3 is therefore accepted and may be closed. No M4+ business logic is included in this acceptance change.
 
 ## Authoritative scope
 
@@ -17,7 +17,8 @@ M3 is limited to design tokens, RadicX component foundations, responsive Public/
 - Feature branch: `feat/m3-design-system-shell`
 - Pull request: `#15 — M3: Design System & Application Shell`
 - PR head at validation: `7f6f8bcc5b8a6a50c2ad2817e9a618b8a2ad53aa`
-- Staging merge commit: `44e8527a24d6dee4c9e498d0ae0374500cb50641`
+- M3 implementation merge commit: `44e8527a24d6dee4c9e498d0ae0374500cb50641`
+- Acceptance-evidence merge commit: `aa4a8d475ee578da8def9d27673d19bc507d0ba3`
 - PR CI run: CI #47 — PASS
 - PR database run: Database #24 — PASS
 - Staging CI run: CI #49 — PASS
@@ -94,7 +95,7 @@ Automated/static checks passed for:
 - `prefers-reduced-motion`
 - approximately 44px primary control/touch targets
 
-**Pending acceptance item:** manual browser keyboard traversal and focus-order inspection across Public, Student, Focus, Exam, Admin and showcase surfaces.
+Independent manual browser validation was completed successfully on 2026-09-04. Keyboard traversal, visible focus order, Enter/Space activation, Escape dismissal, dialog/sheet behavior, and tab ArrowLeft/ArrowRight/Home/End behavior were reported working correctly across the tested M3 surfaces.
 
 ## Responsive validation
 
@@ -106,7 +107,9 @@ CSS/test coverage confirms the approved responsive model and breakpoints:
 - 1024–1439 desktop
 - 1440+ wide desktop
 
-**Pending acceptance item:** manual visual inspection at representative widths 360, 480, 768, 1024 and 1440, including mobile bottom navigation, desktop rails, wrapping, overflow and touch-target behavior.
+Independent manual visual validation was completed successfully on 2026-09-04 at representative widths 360, 480, 768, 1024 and 1440. Public, Student, Focus, Exam, Admin and design-system surfaces were reported free of material clipping, overflow, navigation, wrapping or touch-target defects. Mobile bottom navigation and desktop navigation/rails behaved as intended.
+
+Reduced-motion browser emulation was also checked successfully, with motion remaining restrained and no required information depending on animation.
 
 ## Performance / bundle
 
@@ -121,6 +124,12 @@ PASS.
 The M3 diff contains no Supabase migration changes. Both PR and staging database workflows successfully rebuilt from migrations/seed, linted the database, executed pgTAP tests and regenerated database types.
 
 The hosted `RadicX Staging` Supabase project remains `ACTIVE_HEALTHY`. Current advisor notices are informational M2-era notices only: intentionally policy-less locked/private tables and unused indexes in the fresh staging workload. No M3 DDL or policy regression was introduced.
+
+## Netlify / staging validation
+
+PASS.
+
+The M3 Deploy Preview was green. Independent review also confirmed the staging deployment and its Public, Student, Focus, Exam, Admin and design-system routes were reachable and working correctly. The previously skipped staging-CI Netlify smoke step is therefore no longer an unresolved acceptance blocker.
 
 ## Files / areas changed
 
@@ -140,6 +149,7 @@ Primary M3 areas:
 - `scripts/bundle-baseline.mjs`
 - `tests/m3-design-system.test.mjs`
 - `docs/engineering/m3-design-system.md`
+- `docs/engineering/m3-acceptance.md`
 - `CHANGELOG.md`
 - `package.json` / `package-lock.json`
 
@@ -151,32 +161,37 @@ No M3 migrations were added.
 | --- | --- |
 | Design tokens implemented | PASS |
 | Branded component foundation exists | PASS |
-| Student shell responsive structure | PASS, manual visual review pending |
-| Mobile bottom navigation | PASS, manual visual review pending |
+| Student shell responsive structure | PASS |
+| Mobile bottom navigation | PASS |
 | Focus shell | PASS |
 | Exam shell | PASS |
 | Admin shell | PASS |
 | Public shell | PASS |
 | Automated accessibility smoke | PASS |
-| Manual keyboard behavior | **PENDING** |
+| Manual keyboard behavior | PASS |
 | Reduced-motion support | PASS |
 | Responsive breakpoint implementation/tests | PASS |
-| Manual responsive visual check | **PENDING** |
+| Manual responsive visual check | PASS |
 | Build / CI | PASS |
 | M2 database regression | PASS |
 | Bundle/performance baseline | PASS |
 | Netlify Deploy Preview | PASS |
+| Staging reachability / visual validation | PASS |
 | Documentation | PASS |
 | No M4+ business logic introduced | PASS |
 
 ## Unresolved issues
 
-1. Independent manual keyboard/focus traversal has not yet been observed in a browser.
-2. Independent responsive visual inspection at 360 / 480 / 768 / 1024 / 1440 remains required.
-3. The staging CI Netlify smoke step was skipped by GitHub Actions even though the CI verification itself passed; PR #15 Deploy Preview is green. The staging branch deployment should therefore be visually/reachability checked during the independent review rather than inferred from the skipped step.
+None blocking M3 acceptance.
 
-None of these issues justify beginning M4. M3 remains at the acceptance gate until they are resolved.
+The skipped Netlify smoke step on the earlier staging CI run remains a CI-observability quirk worth revisiting during later pipeline hardening, but independent staging validation has resolved it as an M3 acceptance concern.
 
 ## Deferred items
 
 No V1.1/V2 feature was added. Night Study theme remains V1.1 as defined by the project brief. Full Study, Review, Mock Exam, Readiness, Momentum, commerce and offline architecture remain assigned to their approved later V1 milestones.
+
+## Final acceptance decision
+
+**M3 — Design System & Application Shell: PASS / ACCEPTED.**
+
+Acceptance is based on green automated CI/database regression, successful Netlify preview validation, successful independent responsive and keyboard review, successful reduced-motion review, and confirmed staging reachability. Development must stop at the M3 boundary until M4 is explicitly authorized.
