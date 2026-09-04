@@ -20,61 +20,67 @@ M5 also activates a truthful authenticated dashboard baseline and discovers an e
 - M4 owns question intelligence and administrative content workflows; those boundaries remain unchanged.
 - GitHub is canonical, Supabase remains the sole production identity/data platform, and Netlify remains the deploy-preview/frontend platform.
 
-## Planned implementation sequence
+## Verified handoff state
+
+The feature branch `feat/m5-auth-onboarding` was verified at `f147fa1c9841cb1c2143757dc0a65b96055c8eb6`. That commit has accepted M4 staging head `fb57fe3043e97f8c3a027a9d7725e3d43302be01` as its direct parent and contains only this execution record. No unverified Codex workspace changes were present in GitHub and none are being assumed.
+
+## Implementation sequence
 
 1. Verify current Supabase and Netlify configuration using current vendor documentation and read-only hosted inspection.
 2. Add the smallest migration-driven extension to `public.profiles` for programme, exam date, daily study preference and resumable onboarding state.
 3. Extend RLS/grants and pgTAP coverage for owner-only reads/updates, constrained onboarding completion and cross-user denial.
-4. Add a pinned browser-safe Supabase client dependency and a small reusable Auth/profile/session service layer.
+4. Add a pinned browser-safe Supabase client and a small reusable Auth/profile/session service layer.
 5. Implement signup, verification/callback, login, logout and password-recovery/reset surfaces.
 6. Implement explicit auth-loading route guards and server-authoritative onboarding routing.
 7. Implement resumable onboarding for programme, exam date, daily study preference and diagnostic start/skip handoff.
-8. Activate the M3 Student Shell as the M5 dashboard using only persisted profile/programme/session data.
+8. Activate the M3 Student Shell as the M5 dashboard using only persisted profile/programme/exam/session data.
 9. Extend unit/integration, accessibility, build, secret-scan and database regression coverage.
-10. Validate locally, push logical commits, open a PR to `staging`, verify CI/Database CI/Netlify preview, review Supabase advisors and record acceptance evidence.
+10. Validate, push logical commits, open a PR to `staging`, verify CI/Database CI/Netlify preview, review Supabase advisors and record acceptance evidence.
 
-## Database changes
+## Database implementation decision
 
-Planned profile additions:
+M5 extends `public.profiles` only with the approved first-use fields:
 
-- selected programme reference;
-- expected exam date;
-- constrained daily study-time preference;
-- onboarding status, current step, version and completion timestamp;
-- diagnostic invitation choice/timestamp for the M5-to-M7 handoff.
+- `programme_id` referencing `public.programmes`;
+- `expected_exam_date`;
+- `daily_study_minutes` constrained to 10/20/30/45/60;
+- onboarding status/current step/version/completion timestamp;
+- diagnostic invitation decision/timestamp.
 
-The migration will preserve the M2 `profiles.user_id` ownership key and existing new-user trigger. It will add only constraints/indexes justified by M5 and will not add readiness, mastery, commerce or staff-authorization fields.
+The onboarding version and server timestamps are not browser-writable. A private trigger stamps `updated_at`, diagnostic-decision time and completion time, and rejects selection of an inactive programme when the programme changes or onboarding completes. Database constraints prevent invalid step progression and prevent completed state until all required first-use inputs exist.
 
-## Auth changes
+No readiness, mastery, streak, Momentum, entitlement, staff-role or later-milestone fields are added.
 
-- Browser client uses only `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
-- A reusable Auth service will own current-user/session retrieval, auth-state events, signup, login, logout, resend verification, recovery and password update.
-- Session restoration will render an explicit loading state before protected content.
-- Verification and recovery callbacks will handle valid, invalid and expired links without leaking tokens.
-- Hosted Auth configuration will be validated for email/password, confirmation, secure changes, disabled phone/anonymous access, TOTP preservation, OAuth readiness, redirect allow-list and CAPTCHA readiness.
+## Auth implementation decision
 
-## UI changes
+- Browser code uses only `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY` injected into a generated non-secret runtime config during the Netlify build.
+- Supabase JS is loaded as an exact-version browser ESM dependency; no service-role or secret key is bundled.
+- The client uses persisted sessions, token auto-refresh and PKCE with explicit callback code exchange.
+- Session restoration validates the locally restored session with `getUser()` before protected content is revealed.
+- Signup, resend verification and password recovery use explicit environment-aware redirect URLs.
+- Verification and recovery callbacks fail closed on missing/expired/invalid codes and do not render tokens.
 
-- Add/refine login, signup, verify-email, callback, forgot-password and reset-password pages.
-- Add a resumable onboarding surface using existing M3 tokens/components.
-- Replace the Student Shell placeholder dashboard with real M5-supported profile/programme/exam/session states and honest later-milestone empty states.
-- Add an intentional diagnostic-unavailable handoff for M7 ownership.
-- Preserve mobile navigation and validate the requested 360–1024 px and desktop widths.
+## UI implementation decision
+
+- Auth, recovery and onboarding use the existing M3 tokens, fields, buttons, cards, focus treatment and responsive rules.
+- Protected content remains visually hidden behind an auth-loading state until Supabase resolves the session.
+- Onboarding persistence lives only in `public.profiles`; local storage is used only by Supabase Auth for its own session/PKCE state.
+- The dashboard will show only profile/programme/exam/onboarding information and discovery of an existing resumable M2 session. Later readiness/recommendation/engagement values remain explicit unavailable states rather than fabricated numbers.
 
 ## RLS and security implications
 
 - Supabase/RLS remains authoritative; protected HTML contains no private pre-rendered data.
 - Profile access remains own-row only using `auth.uid()` in both `USING` and `WITH CHECK`.
-- Browser grants remain column-limited and exclude identity, authorization and timestamp ownership fields.
-- Onboarding completion will be constrained by persisted required values, not local storage or user metadata.
+- Browser grants remain column-limited and exclude identity, authorization, onboarding-version and server timestamp columns.
+- Onboarding completion is constrained by persisted required values, not local storage or user metadata.
 - No service-role/secret/database credential may enter source, browser bundles, Netlify browser variables or test fixtures.
-- M2 private answer-key and staff-role boundaries will not be weakened.
+- M2 private answer-key and staff-role boundaries remain unchanged.
 
 ## Test plan
 
 - pgTAP: schema/constraints, active programme relationship, allowed own-profile update, cross-user denial, protected-column denial, invalid onboarding states and relevant index coverage.
-- Node tests: auth-routing decisions, verification/recovery state parsing, onboarding transitions/resume, protected-route decisions, session restoration state and dashboard view models.
-- Browser/E2E where supported: signup, confirmation strategy, login, logout, recovery/reset, onboarding persistence, refresh restoration and protected-route denial.
+- Node tests: auth-routing decisions, callback state parsing, onboarding transitions/resume, protected-route decisions, session restoration state and dashboard view models.
+- Browser/manual where supported: signup, confirmation strategy, login, logout, recovery/reset, onboarding persistence, refresh restoration and protected-route denial.
 - Regression: lint, syntax/type boundary, all Node tests, secret scan, production build, accessibility smoke, bundle budget, clean Supabase reset, database lint and all pgTAP suites.
 - Manual: keyboard-only completion, focus/error association, mobile layouts at 360/390/412/480/768/1024/desktop and Netlify Deploy Preview route/callback behavior.
 
@@ -92,4 +98,4 @@ M5 is accepted only when the complete account lifecycle, verification handling, 
 
 ## Current status
 
-Baseline accepted and feature branch created. Architecture/schema inspection is in progress; no M5 implementation has yet been committed.
+Handoff inspection is complete. The first durable implementation increment is the M5 profile/onboarding migration plus pgTAP security/integrity coverage. Authentication UI and service implementation follows on the same feature branch.
