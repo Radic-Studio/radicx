@@ -1,6 +1,6 @@
 # M2 Acceptance Evidence
 
-Status: IN PROGRESS — hosted validation substantially complete; Auth dashboard verification and final latest-head CI remain
+Status: IN PROGRESS — hosted Auth dashboard verification remains
 
 This record is updated as M2 proceeds through SPECIFY -> BUILD -> TEST -> FIX -> RETEST -> REGRESSION -> STAGING VALIDATION -> ACCEPT.
 
@@ -18,22 +18,23 @@ This record is updated as M2 proceeds through SPECIFY -> BUILD -> TEST -> FIX ->
 
 Initial Database CI successfully started Supabase, rebuilt the database from the M2 migrations, seeded synthetic data and private Storage buckets, and passed database lint. The first pgTAP run exposed a test-harness SQL defect in the cross-user UPDATE assertion. The test was corrected and retested.
 
-Retest on commit `dffa84df104360992939f09b692a2ca74b67ef34` passed:
-
-- existing M1 `CI / verify`: PASS;
-- clean `supabase start`: PASS;
-- `supabase db reset`: PASS;
-- declared private Storage bucket creation: PASS;
-- `supabase db lint --local --level warning`: PASS, no schema errors;
-- pgTAP: PASS, 3 files / 30 tests;
-- generated TypeScript types: PASS and uploaded as CI artifact `database-generated-types`;
-- repository secret scan/build regression: PASS through existing `verify` gate.
+Retest on commit `dffa84df104360992939f09b692a2ca74b67ef34` passed the original M2 foundation: existing M1 `CI / verify`, clean Supabase start/reset, private bucket creation, database lint, 3 pgTAP files / 30 tests, generated TypeScript types and the existing application regression gate.
 
 Hosted Performance Advisor then identified unindexed foreign keys. Migration `20260904054500_m2_advisor_indexes.sql` was added and applied to staging. A follow-up advisor run confirms the unindexed-foreign-key findings are resolved. Remaining unused-index notices are informational and expected on a new low-traffic staging database.
 
-A fourth pgTAP file verifies the advisor-remediation indexes.
-
 After explicit user approval, migration `20260904054800_m2_private_table_rls.sql` enabled RLS on `private.question_keys` and `private.staff_roles` with no browser policies. Hosted verification confirms RLS is enabled on both tables, and authenticated browser-role access continues to fail with SQLSTATE 42501. `001_schema_integrity.sql` now asserts both private tables have RLS enabled.
+
+Final regression on branch head `1c536d703e07ac1111ba29f39d5268ba16276d25` passed:
+
+- `CI` run 38: PASS;
+- `Database` run 15: PASS;
+- clean `supabase start`: PASS;
+- clean `supabase db reset`: PASS with all six M2 migrations and synthetic seed;
+- declared private Storage bucket creation/update: PASS;
+- `supabase db lint --local --level warning`: PASS, no schema errors;
+- pgTAP: PASS, 4 files / 45 tests;
+- TypeScript type generation: PASS;
+- generated-types artifact upload: PASS.
 
 The generated-types workflow proves clean generation from the migration-defined database. Committing generated application types remains deferred until an application layer consumes them.
 
@@ -78,9 +79,11 @@ Performance Advisor has no remaining unindexed-foreign-key finding after remedia
 - [x] Synthetic seed authored and loaded to staging.
 - [x] pgTAP schema/security tests authored.
 - [x] Database CI workflow authored.
-- [x] Clean CI database reset succeeds on tested M2 foundation.
-- [x] Database lint passes with no schema errors on tested M2 foundation.
+- [x] Clean CI database reset succeeds on latest M2 branch head.
+- [x] Database lint passes with no schema errors on latest M2 branch head.
+- [x] pgTAP passes on latest M2 branch head (4 files / 45 tests).
 - [x] Generated TypeScript type workflow succeeds from clean schema.
+- [x] Application/M1 regression `CI / verify` passes on latest M2 branch head.
 - [x] Hosted staging project provisioned.
 - [x] Repository migrations applied to hosted staging.
 - [x] Hosted cross-user/security validation performed.
@@ -88,10 +91,9 @@ Performance Advisor has no remaining unindexed-foreign-key finding after remedia
 - [x] Security Advisor reviewed; only intentional informational no-policy findings remain.
 - [x] Performance Advisor reviewed; unindexed-FK findings remediated, fresh-database unused-index notices documented.
 - [ ] Hosted Auth dashboard settings verified (connector cannot read/write these settings).
-- [ ] Latest branch-head CI/regression completed after private-table RLS and documentation changes.
 - [ ] Staging validation completed.
 - [ ] M2 accepted.
 
 Detailed hosted evidence: `docs/engineering/m2-hosted-validation.md`.
 
-No item is marked complete merely because SQL/code exists. M2 remains open until hosted Auth configuration is verified and the final latest-head regression run passes.
+No item is marked complete merely because SQL/code exists. M2 remains open only because hosted Auth configuration still requires Dashboard verification. Do not begin M3 before that validation is completed.
