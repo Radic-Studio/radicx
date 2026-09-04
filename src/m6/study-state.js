@@ -152,7 +152,10 @@ export function evaluatedAnswerCount(localSession = {}) {
 }
 
 export function localCompletionState(questions = [], localSession = {}) {
-  const relevant = questions.filter((question) => question.state !== 'withdrawn' && question.available !== false);
+  const relevant = questions.filter((question) => {
+    const localState = localSession.items?.[String(question.position)]?.submissionState;
+    return question.state !== 'withdrawn' && question.available !== false && localState !== 'withdrawn';
+  });
   const states = relevant.map((question) => localSession.items?.[String(question.position)]?.submissionState ?? 'draft');
   const pending = states.filter((state) => state === 'pending').length;
   const evaluated = states.filter((state) => state === 'evaluated').length;
