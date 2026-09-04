@@ -30,6 +30,8 @@ GitHub pull-request and push workflows pass with the hosted `verify` job. The ve
 
 After the Netlify `staging` branch deploy setting was enabled, PR #9 passed the protected pre-merge CI gate and merged into `staging`. The resulting staging push on commit `944f2231a0f32c7c3258ffc713d056209079524c` passed the full `verify` workflow. The staging smoke check first observed HTTP 404 while the deployment was being created, then HTTP 401 on the second attempt, confirming the staging deployment was live behind the configured Netlify team SSO access control. GitHub issue #5 was closed as resolved.
 
+Before the final promotion to `main`, the repository histories were reconciled because `main` contained an earlier M1 promotion commit while later validation continued independently on `staging`. The reconciliation merge preserves the accepted `staging` tree while incorporating the existing `main` history, removing add/add promotion conflicts without discarding validated files.
+
 No database migration was introduced in M1. No M2+ product functionality was introduced.
 
 M1 acceptance is recorded after SPECIFY, BUILD, TEST, FIX, RETEST, REGRESSION and STAGING VALIDATION completed successfully.
