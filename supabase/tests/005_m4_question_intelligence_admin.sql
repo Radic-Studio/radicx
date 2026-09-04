@@ -97,19 +97,19 @@ select is(
   'publication is blocked before review gates pass'
 );
 select lives_ok(
-  format('select public.admin_record_question_review(%L::uuid, %L::private.review_type, %L::private.review_decision, null, false)', current_setting('test.question_id'), 'rights', 'approved'),
+  format('select public.admin_record_question_review(%L::uuid, %L, %L, null, false)', current_setting('test.question_id'), 'rights', 'approved'),
   'content admin can approve rights review'
 );
 
 select set_config('request.jwt.claims','{"sub":"c0000000-0000-0000-0000-000000000002","role":"authenticated","aal":"aal2"}', true);
 select lives_ok(
-  format('select public.admin_record_question_review(%L::uuid, %L::private.review_type, %L::private.review_decision, null, false)', current_setting('test.question_id'), 'clinical', 'approved'),
+  format('select public.admin_record_question_review(%L::uuid, %L, %L, null, false)', current_setting('test.question_id'), 'clinical', 'approved'),
   'clinical reviewer can approve clinical review'
 );
 
 select set_config('request.jwt.claims','{"sub":"c0000000-0000-0000-0000-000000000003","role":"authenticated","aal":"aal2"}', true);
 select lives_ok(
-  format('select public.admin_record_question_review(%L::uuid, %L::private.review_type, %L::private.review_decision, null, false)', current_setting('test.question_id'), 'item', 'approved'),
+  format('select public.admin_record_question_review(%L::uuid, %L, %L, null, false)', current_setting('test.question_id'), 'item', 'approved'),
   'item reviewer can approve item review'
 );
 
