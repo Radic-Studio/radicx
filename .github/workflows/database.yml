@@ -1,0 +1,54 @@
+name: Database
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: database-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  database:
+    name: database
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Reset database from migrations and seed
+        run: supabase db reset
+
+      - name: Database lint
+        run: supabase db lint --local --level warning
+
+      - name: pgTAP database tests
+        run: supabase test db
+
+      - name: Generate TypeScript database types
+        run: |
+          mkdir -p supabase/types
+          supabase gen types typescript --local --schema public,storage > supabase/types/database.generated.ts
+          test -s supabase/types/database.generated.ts
+
+      - name: Upload generated types
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-generated-types
+          path: supabase/types/database.generated.ts
+          if-no-files-found: error
+          retention-days: 7
