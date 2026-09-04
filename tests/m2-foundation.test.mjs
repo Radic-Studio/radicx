@@ -9,9 +9,11 @@ const requiredM2Files = [
   'supabase/migrations/20260904030100_m2_security_rls.sql',
   'supabase/migrations/20260904030200_m2_integrity_indexes_storage.sql',
   'supabase/migrations/20260904030300_m2_published_question_immutability.sql',
+  'supabase/migrations/20260904054500_m2_advisor_indexes.sql',
   'supabase/tests/001_schema_integrity.sql',
   'supabase/tests/002_rls_security.sql',
   'supabase/tests/003_content_storage_integrity.sql',
+  'supabase/tests/004_advisor_indexes.sql',
   '.github/workflows/database.yml',
   'docs/engineering/m2-supabase-foundation.md'
 ];
