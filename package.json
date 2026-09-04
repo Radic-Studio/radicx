@@ -16,6 +16,7 @@
     "scan:secrets": "node scripts/scan-secrets.mjs",
     "study:leak-scan": "node scripts/m6-leak-scan.mjs",
     "study:responsive-smoke": "node scripts/m6-responsive-smoke.mjs",
+    "study:storage-smoke": "node scripts/m6-browser-storage-smoke.mjs",
     "a11y:smoke": "node scripts/a11y-smoke.mjs",
     "bundle:baseline": "node scripts/bundle-baseline.mjs",
     "db:start": "supabase start",
@@ -23,6 +24,6 @@
     "db:test": "supabase test db",
     "db:lint": "supabase db lint --local --level warning",
     "db:types": "supabase gen types typescript --local --schema public,storage > supabase/types/database.generated.ts",
-    "verify": "npm run lint && npm run typecheck && npm test && npm run scan:secrets && npm run build && npm run study:leak-scan && npm run a11y:smoke && npm run study:responsive-smoke && npm run bundle:baseline"
+    "verify": "npm run lint && npm run typecheck && npm test && npm run scan:secrets && npm run build && npm run study:leak-scan && npm run a11y:smoke && npm run study:responsive-smoke && npm run study:storage-smoke && npm run bundle:baseline"
   }
 }
