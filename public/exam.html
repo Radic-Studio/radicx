@@ -1,78 +1,10 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#F8F9FB" />
-    <meta name="robots" content="noindex,nofollow" />
-    <meta name="description" content="RadicX M3 structural Exam Mode shell." />
-    <title>Exam shell · RadicX</title>
-    <link rel="stylesheet" href="/assets/styles.css" />
-  </head>
-  <body class="exam-shell">
-    <a class="skip-link" href="#exam-main">Skip to exam content</a>
-    <header class="exam-header">
-      <div class="exam-header__inner">
-        <div>
-          <p class="radic-label" style="margin-bottom:4px;">Mock examination</p>
-          <strong>Exam Mode shell</strong>
-        </div>
-        <div class="exam-meta" aria-label="Exam status placeholders">
-          <div class="exam-meta__item">
-            <span class="radic-label">Question</span>
-            <span class="exam-meta__value">— / —</span>
-          </div>
-          <div class="exam-meta__item">
-            <span class="radic-label">Time</span>
-            <span class="exam-meta__value">Not started</span>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <main class="exam-main" id="exam-main">
-      <div class="radic-cluster" aria-label="Exam sync placeholder">
-        <span class="radic-sync-state radic-sync-state--neutral" role="status"><span class="radic-status-dot" aria-hidden="true"></span>Sync status placeholder</span>
-        <span class="radic-supporting-text">Timer, scoring, autosave and exam lifecycle are intentionally deferred to M8.</span>
-      </div>
-
-      <div class="exam-layout">
-        <section class="exam-question-panel" aria-labelledby="exam-question-title">
-          <div class="exam-question-stage">
-            <div>
-              <p class="radic-eyebrow">Question area</p>
-              <h1 id="exam-question-title" class="radic-question-text">Question content will appear here when the Mock Exam Engine is implemented.</h1>
-            </div>
-            <div class="radic-stack" aria-label="Answer option presentation placeholders">
-              <div class="answer-placeholder"><span class="answer-placeholder__key">A</span><span class="radic-supporting-text">Answer option placeholder</span></div>
-              <div class="answer-placeholder"><span class="answer-placeholder__key">B</span><span class="radic-supporting-text">Answer option placeholder</span></div>
-              <div class="answer-placeholder"><span class="answer-placeholder__key">C</span><span class="radic-supporting-text">Answer option placeholder</span></div>
-              <div class="answer-placeholder"><span class="answer-placeholder__key">D</span><span class="radic-supporting-text">Answer option placeholder</span></div>
-            </div>
-          </div>
-        </section>
-
-        <aside class="exam-navigator" aria-labelledby="exam-navigator-title">
-          <p class="radic-eyebrow">Navigator</p>
-          <h2 id="exam-navigator-title" class="radic-section-heading">Question map</h2>
-          <div class="exam-navigator__grid" aria-hidden="true">
-            <span class="exam-navigator__slot">1</span><span class="exam-navigator__slot">2</span><span class="exam-navigator__slot">3</span><span class="exam-navigator__slot">4</span><span class="exam-navigator__slot">5</span>
-            <span class="exam-navigator__slot">6</span><span class="exam-navigator__slot">7</span><span class="exam-navigator__slot">8</span><span class="exam-navigator__slot">9</span><span class="exam-navigator__slot">10</span>
-          </div>
-          <p class="radic-supporting-text" style="margin-top:16px;">Structural placement only. No navigation state or answer state is implemented in M3.</p>
-        </aside>
-      </div>
-    </main>
-
-    <footer class="exam-footer">
-      <div class="exam-footer__inner">
-        <div class="radic-cluster">
-          <button class="radic-button radic-button--secondary" type="button" disabled>Previous</button>
-          <button class="radic-button radic-button--ghost" type="button" disabled>Flag</button>
-        </div>
-        <button class="radic-button radic-button--primary" type="button" disabled>Next</button>
-      </div>
-    </footer>
-    <script type="module" src="/assets/app.js"></script>
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#F8F9FB" /><meta name="robots" content="noindex,nofollow" /><title>Exam shell · RadicX</title><link rel="stylesheet" href="/assets/styles.css" /></head>
+  <body class="exam-shell" data-auth-state="loading">
+    <a class="skip-link" href="#exam-main">Skip to exam content</a><div class="m5-auth-loading" role="status" aria-live="polite"><span class="radic-supporting-text">Restoring your student session…</span></div>
+    <div class="exam-shell m5-protected"><header class="exam-header"><div class="exam-header__inner"><div><p class="radic-label" style="margin-bottom:4px;">Mock examination</p><strong>Exam Mode shell</strong></div><div class="exam-meta" aria-label="Exam status placeholders"><div class="exam-meta__item"><span class="radic-label">Question</span><span class="exam-meta__value">— / —</span></div><div class="exam-meta__item"><span class="radic-label">Time</span><span class="exam-meta__value">Not started</span></div></div></div></header>
+      <main class="exam-main" id="exam-main"><div class="radic-cluster"><span class="radic-sync-state radic-sync-state--success" role="status"><span class="radic-status-dot" aria-hidden="true"></span>Authenticated</span><span class="radic-supporting-text">M5 protects this route. Timer, scoring, autosave and exam lifecycle remain M8 scope.</span></div><div class="exam-layout"><section class="exam-question-panel" aria-labelledby="exam-question-title"><div class="exam-question-stage"><div><p class="radic-eyebrow">Question area</p><h1 id="exam-question-title" class="radic-question-text">Question content will appear here when the Mock Exam Engine is implemented.</h1></div><div class="radic-stack" aria-label="Answer option placeholders"><div class="answer-placeholder"><span class="answer-placeholder__key">A</span><span class="radic-supporting-text">Answer option placeholder</span></div><div class="answer-placeholder"><span class="answer-placeholder__key">B</span><span class="radic-supporting-text">Answer option placeholder</span></div><div class="answer-placeholder"><span class="answer-placeholder__key">C</span><span class="radic-supporting-text">Answer option placeholder</span></div><div class="answer-placeholder"><span class="answer-placeholder__key">D</span><span class="radic-supporting-text">Answer option placeholder</span></div></div></div></section><aside class="exam-navigator" aria-labelledby="exam-navigator-title"><p class="radic-eyebrow">Navigator</p><h2 id="exam-navigator-title" class="radic-section-heading">Question map</h2><p class="radic-supporting-text">Structural placement only. M8 owns navigator state.</p></aside></div></main><footer class="exam-footer"><div class="exam-footer__inner"><div class="radic-cluster"><button class="radic-button radic-button--secondary" type="button" disabled>Previous</button><button class="radic-button radic-button--ghost" type="button" disabled>Flag</button></div><button class="radic-button radic-button--primary" type="button" disabled>Next</button></div></footer></div>
+    <script src="/assets/runtime-config.js"></script><script type="module" src="/assets/m5/protected-shell.js"></script>
   </body>
 </html>
