@@ -79,6 +79,11 @@ export function createLocalItemState(question = {}, previous = null) {
   };
 }
 
+function navigableQuestion(question, items = {}) {
+  if (!question || question.state === 'withdrawn' || question.available === false) return false;
+  return items[String(question.position)]?.submissionState !== 'withdrawn';
+}
+
 export function mergeLocalSession(packageData, previous = null) {
   const safe = safeStudyPackage(packageData);
   if (!safe.session) throw new Error('Study package is missing its session.');
@@ -90,10 +95,11 @@ export function mergeLocalSession(packageData, previous = null) {
   }
 
   const requestedPosition = Number(previous?.localPosition ?? safe.session.current_position ?? 1);
-  const validPositions = safe.questions.map((question) => Number(question.position));
-  const localPosition = validPositions.includes(requestedPosition)
+  const requestedQuestion = safe.questions.find((question) => Number(question.position) === requestedPosition);
+  const fallbackQuestion = safe.questions.find((question) => navigableQuestion(question, items));
+  const localPosition = navigableQuestion(requestedQuestion, items)
     ? requestedPosition
-    : Number(safe.session.current_position ?? validPositions[0] ?? 1);
+    : Number(safe.session.current_position ?? fallbackQuestion?.position ?? 1);
 
   return {
     sessionId: safe.session.id,
@@ -118,24 +124,23 @@ export function canSubmitLocalItem(itemState = {}) {
 }
 
 export function nextNavigablePosition(questions = [], currentPosition, items = {}) {
-  const sorted = questions
-    .map((question) => Number(question.position))
-    .filter(Number.isFinite)
-    .sort((a, b) => a - b);
-  for (const position of sorted) {
-    if (position <= Number(currentPosition)) continue;
-    const state = items[String(position)]?.submissionState;
-    if (state !== 'withdrawn') return position;
+  const sorted = [...questions].sort((a, b) => Number(a.position) - Number(b.position));
+  for (const question of sorted) {
+    const position = Number(question.position);
+    if (!Number.isFinite(position) || position <= Number(currentPosition)) continue;
+    if (navigableQuestion(question, items)) return position;
   }
   return null;
 }
 
-export function previousNavigablePosition(questions = [], currentPosition) {
-  const sorted = questions
-    .map((question) => Number(question.position))
-    .filter((position) => Number.isFinite(position) && position < Number(currentPosition))
-    .sort((a, b) => b - a);
-  return sorted[0] ?? null;
+export function previousNavigablePosition(questions = [], currentPosition, items = {}) {
+  const sorted = [...questions].sort((a, b) => Number(b.position) - Number(a.position));
+  for (const question of sorted) {
+    const position = Number(question.position);
+    if (!Number.isFinite(position) || position >= Number(currentPosition)) continue;
+    if (navigableQuestion(question, items)) return position;
+  }
+  return null;
 }
 
 export function pendingAnswerCount(localSession = {}) {
