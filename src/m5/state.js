@@ -1,7 +1,7 @@
 export const M5_ONBOARDING_VERSION = 1;
 export const DAILY_STUDY_OPTIONS = Object.freeze([10, 20, 30, 45, 60]);
 
-const protectedPaths = new Set(['/student.html', '/focus.html', '/exam.html', '/onboarding.html']);
+const protectedPaths = new Set(['/student.html', '/study.html', '/focus.html', '/exam.html', '/onboarding.html']);
 
 export function safeNextPath(value, fallback = '/student.html') {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) return fallback;
@@ -91,26 +91,29 @@ export function dashboardViewModel({ profile, programme, resumableSession, now =
   const displayName = profile?.display_name?.trim() || 'Student';
 
   let nextAction;
-  if (resumableSession) {
+  if (resumableSession?.mode === 'study' && resumableSession.study_kind) {
     nextAction = {
       kind: 'resume',
-      title: 'An existing session is ready to resume',
-      body: 'RadicX found a valid unfinished session. M6 will activate the question-flow resume action without changing this stored session.',
-      label: 'Resume becomes active in M6'
+      title: 'Continue your Study session',
+      body: `Return to question ${resumableSession.current_position ?? 1} of ${resumableSession.target_question_count ?? 'your current batch'}.`,
+      label: 'Continue Study',
+      href: `/focus.html?session=${encodeURIComponent(resumableSession.id)}`
     };
   } else if (profile?.diagnostic_invitation_decision === 'start') {
     nextAction = {
       kind: 'diagnostic',
       title: 'Diagnostic preference saved',
-      body: 'You chose to start the diagnostic. The diagnostic engine belongs to M7, so RadicX has saved the handoff without fabricating a result.',
-      label: 'Diagnostic becomes active in M7'
+      body: 'You chose to start the diagnostic. The diagnostic engine belongs to M7, so RadicX has saved that preference without fabricating a result.',
+      label: 'Open Study',
+      href: '/study.html'
     };
   } else {
     nextAction = {
       kind: 'study',
-      title: 'Your student foundation is ready',
-      body: 'Study recommendations and question flow are intentionally unavailable until their approved milestones.',
-      label: 'Study Engine becomes active in M6'
+      title: 'Ready to practise?',
+      body: 'Start with Study for me or choose a subject, topic, quick practice size or your bookmarks.',
+      label: 'Open Study',
+      href: '/study.html'
     };
   }
 
