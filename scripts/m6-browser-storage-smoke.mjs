@@ -3,7 +3,13 @@ import { createServer } from 'node:http';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const chromeCandidates = ['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser'];
+const chromeCandidates = [
+  process.env.CHROME_BIN,
+  'google-chrome',
+  'google-chrome-stable',
+  'chromium',
+  'chromium-browser'
+].filter(Boolean);
 let chrome = null;
 for (const candidate of chromeCandidates) {
   try {

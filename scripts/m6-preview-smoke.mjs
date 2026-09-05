@@ -1,102 +1,148 @@
 import { createHash } from 'node:crypto';
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 
-const base = String(process.env.M6_PREVIEW_URL ?? '').replace(/\/+$/, '');
-if (!/^https:\/\/deploy-preview-\d+--radicx\.netlify\.app$/.test(base)) {
-  throw new Error('M6_PREVIEW_URL must be the RadicX Netlify Deploy Preview HTTPS origin.');
-}
-
 const distRoot = path.resolve('dist');
+const failures = [];
 const textExtensions = new Set(['.html', '.js', '.css', '.json', '.txt']);
+const requiredRoutes = [
+  'index.html',
+  'login.html',
+  'student.html',
+  'study.html',
+  'focus.html'
+];
 const forbiddenBuildSecrets = [
   [/Synthetic private explanation for automated/i, 'known private seed explanation'],
   [/\bsb_secret_[a-z0-9_-]+/i, 'Supabase secret key'],
-  [/DATABASE_PASSWORD/i, 'database password variable']
+  [/DATABASE_PASSWORD/i, 'database password variable'],
+  [/SUPABASE_SERVICE_ROLE/i, 'Supabase service-role variable']
 ];
 
-function sha256(text) {
-  return createHash('sha256').update(text).digest('hex');
-}
+async function walk(target) {
+  const info = await stat(target);
+  if (info.isFile()) return [target];
 
-async function walk(directory) {
   const files = [];
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const full = path.join(directory, entry.name);
+  for (const entry of await readdir(target, { withFileTypes: true })) {
+    const full = path.join(target, entry.name);
     if (entry.isDirectory()) files.push(...await walk(full));
     else files.push(full);
   }
   return files;
 }
 
-async function fetchText(relativePath) {
-  const url = `${base}/${relativePath.split(path.sep).map(encodeURIComponent).join('/')}`;
-  const response = await fetch(url, { redirect: 'follow', cache: 'no-store' });
-  const body = await response.text();
-  return { url, status: response.status, body };
+function normalizeReference(reference, relativeFile) {
+  const withoutFragment = reference.split('#', 1)[0].split('?', 1)[0];
+  if (!withoutFragment || /^(?:[a-z]+:|\/\/|#)/i.test(reference)) return null;
+  const relative = withoutFragment.startsWith('/')
+    ? withoutFragment.slice(1)
+    : path.posix.normalize(path.posix.join(path.posix.dirname(relativeFile), withoutFragment));
+  if (!relative) return 'index.html';
+  return relative.endsWith('/') ? `${relative}index.html` : relative;
 }
 
-const localFiles = (await walk(distRoot))
-  .filter((file) => textExtensions.has(path.extname(file).toLowerCase()))
-  .map((file) => ({ file, relative: path.relative(distRoot, file) }));
+function collectHtmlReferences(content, relativeFile) {
+  return [...content.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)]
+    .map((match) => normalizeReference(match[1], relativeFile))
+    .filter(Boolean);
+}
 
-const failures = [];
-let checked = 0;
-for (const entry of localFiles) {
-  const remote = await fetchText(entry.relative);
-  if (remote.status !== 200) {
-    failures.push(`${entry.relative}: preview returned HTTP ${remote.status}`);
-    continue;
-  }
-  checked += 1;
+function collectCssReferences(content, relativeFile) {
+  return [...content.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/gi)]
+    .map((match) => normalizeReference(match[1], relativeFile))
+    .filter(Boolean);
+}
+
+function collectModuleReferences(content, relativeFile) {
+  const parent = path.posix.dirname(relativeFile.replaceAll('\\', '/'));
+  return [...content.matchAll(/(?:\bfrom\s*|\bimport\s*\()["']([^"']+)["']/g)]
+    .map((match) => match[1])
+    .filter((reference) => reference.startsWith('.'))
+    .map((reference) => path.posix.normalize(path.posix.join(parent, reference)));
+}
+
+const allFiles = await walk(distRoot);
+const relativeFiles = new Set(allFiles.map((file) => path.relative(distRoot, file).replaceAll('\\', '/')));
+const textFiles = allFiles.filter((file) => textExtensions.has(path.extname(file).toLowerCase()));
+
+for (const required of requiredRoutes) {
+  if (!relativeFiles.has(required)) failures.push(`${required}: missing from deterministic build`);
+}
+
+for (const relative of relativeFiles) {
+  if (/\.map$/i.test(relative)) failures.push(`${relative}: public source map is not approved for M6`);
+}
+
+const artifactHash = createHash('sha256');
+for (const file of [...textFiles].sort()) {
+  const relative = path.relative(distRoot, file).replaceAll('\\', '/');
+  const content = await readFile(file, 'utf8');
+  artifactHash.update(relative);
+  artifactHash.update('\0');
+  artifactHash.update(content);
+  artifactHash.update('\0');
 
   for (const [pattern, label] of forbiddenBuildSecrets) {
-    if (pattern.test(remote.body)) failures.push(`${entry.relative}: contains ${label}`);
+    if (pattern.test(content)) failures.push(`${relative}: contains ${label}`);
   }
 
-  const normalized = entry.relative.replaceAll('\\', '/');
-  const studyBrowserFile = /(?:^|\/)assets\/m6\/|^(?:study|focus)\.html$/.test(normalized);
-  if (studyBrowserFile && /private\.question_keys|\.from\(['"]question_keys['"]\)/i.test(remote.body)) {
-    failures.push(`${entry.relative}: Study browser code addresses the private answer-key store`);
+  const studyBrowserFile = /(?:^|\/)assets\/m6\/|^(?:study|focus)\.html$/.test(relative);
+  if (studyBrowserFile && /private\.question_keys|\.from\(['"]question_keys['"]\)/i.test(content)) {
+    failures.push(`${relative}: Study browser code addresses the private answer-key store`);
   }
-  if (studyBrowserFile && /\.from\(['"]questions['"]\)/i.test(remote.body)) {
-    failures.push(`${entry.relative}: Study browser code bypasses the safe Study RPC boundary`);
+  if (studyBrowserFile && /\.from\(['"]questions['"]\)/i.test(content)) {
+    failures.push(`${relative}: Study browser code bypasses the safe Study RPC boundary`);
   }
 
-  if (entry.relative === path.join('assets', 'runtime-config.js')) {
-    if (!/supabaseUrl/.test(remote.body) || !/supabasePublishableKey/.test(remote.body)) {
-      failures.push('assets/runtime-config.js: missing approved public Supabase configuration shape');
+  const extension = path.extname(file).toLowerCase();
+  const references = extension === '.html'
+    ? collectHtmlReferences(content, relative)
+    : extension === '.css'
+      ? collectCssReferences(content, relative)
+      : extension === '.js'
+        ? collectModuleReferences(content, relative)
+        : [];
+
+  for (const reference of references) {
+    if (!relativeFiles.has(reference)) failures.push(`${relative}: local asset reference is missing: ${reference}`);
+  }
+}
+
+const runtimeConfigPath = path.join(distRoot, 'assets', 'runtime-config.js');
+const runtimeConfigText = await readFile(runtimeConfigPath, 'utf8');
+const runtimeMatch = runtimeConfigText.match(/^window\.__RADICX_CONFIG__\s*=\s*Object\.freeze\((\{.*\})\);\s*$/s);
+if (!runtimeMatch) {
+  failures.push('assets/runtime-config.js: does not use the approved frozen public configuration shape');
+} else {
+  try {
+    const runtimeConfig = JSON.parse(runtimeMatch[1]);
+    const keys = Object.keys(runtimeConfig).sort();
+    if (keys.join(',') !== 'supabasePublishableKey,supabaseUrl') {
+      failures.push(`assets/runtime-config.js: unapproved configuration keys: ${keys.join(', ')}`);
     }
-    if (/service[_-]?role|sb_secret_|database_password|serviceRole|secretKey|databasePassword/i.test(remote.body)) {
+    if (runtimeConfig.supabaseUrl && !/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(runtimeConfig.supabaseUrl)) {
+      failures.push('assets/runtime-config.js: Supabase URL is not an approved HTTPS project origin');
+    }
+    if (runtimeConfig.supabasePublishableKey
+        && !/^(?:sb_publishable_[a-z0-9_-]+|eyJ[a-z0-9_-]+\.[a-z0-9_-]+\.[a-z0-9_-]+)$/i.test(runtimeConfig.supabasePublishableKey)) {
+      failures.push('assets/runtime-config.js: Supabase browser key is not a publishable/legacy anon key');
+    }
+    if (/service[_-]?role|sb_secret_|database_password|serviceRole|secretKey|databasePassword/i.test(runtimeConfigText)) {
       failures.push('assets/runtime-config.js: contains an unapproved privileged configuration field');
     }
-    continue;
-  }
-
-  const localBody = await readFile(entry.file, 'utf8');
-  if (sha256(remote.body) !== sha256(localBody)) {
-    failures.push(`${entry.relative}: hosted preview differs from the deterministic current-head build`);
-  }
-}
-
-const mapCandidates = localFiles
-  .filter((entry) => ['.js', '.css'].includes(path.extname(entry.relative).toLowerCase()))
-  .map((entry) => `${entry.relative}.map`);
-for (const relative of mapCandidates) {
-  const remote = await fetchText(relative);
-  if (remote.status === 200) failures.push(`${relative}: public source map is exposed`);
-}
-
-for (const required of ['study.html', 'focus.html', 'student.html']) {
-  if (!localFiles.some((entry) => entry.relative === required)) {
-    failures.push(`${required}: missing from deterministic build`);
+  } catch {
+    failures.push('assets/runtime-config.js: public configuration is not valid JSON');
   }
 }
 
 if (failures.length) {
-  console.error('M6 Netlify Deploy Preview smoke failed:');
+  console.error('M6 deterministic preview artifact smoke failed:');
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
 
-console.log(`M6 Netlify Deploy Preview integrity/leak smoke passed across ${checked} hosted text assets; no public source maps were exposed.`);
+console.log(
+  `M6 deterministic preview artifact smoke passed across ${textFiles.length} text assets; `
+  + `artifact SHA-256 ${artifactHash.digest('hex')}.`
+);

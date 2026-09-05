@@ -5,7 +5,13 @@ import path from 'node:path';
 
 const widths = [360, 390, 412, 430, 480, 768, 1024, 1440];
 const surfaces = ['study.html', 'focus.html'];
-const chromeCandidates = ['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser'];
+const chromeCandidates = [
+  process.env.CHROME_BIN,
+  'google-chrome',
+  'google-chrome-stable',
+  'chromium',
+  'chromium-browser'
+].filter(Boolean);
 let chrome = null;
 
 for (const candidate of chromeCandidates) {
