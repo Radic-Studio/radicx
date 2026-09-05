@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#FCFCFD" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Study · RadicX</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body data-auth-state="loading">
+    <a class="skip-link" href="#study-main">Skip to Study choices</a>
+    <div class="m5-auth-loading" role="status" aria-live="polite">
+      <span class="radic-supporting-text">Restoring your secure Study workspace…</span>
+    </div>
+    <div class="student-shell m5-protected">
+      <aside class="student-sidebar" aria-label="Student navigation">
+        <a class="radic-brand" href="/student.html" aria-label="RadicX student home"><span class="radic-brand__mark" aria-hidden="true">R</span><span>RadicX</span></a>
+        <nav class="student-sidebar__nav" aria-label="Primary student navigation">
+          <a class="radic-nav-link" href="/student.html">Home</a>
+          <a class="radic-nav-link" href="/study.html" aria-current="page">Study</a>
+          <a class="radic-nav-link" href="/exam.html">Mock Exams</a>
+          <a class="radic-nav-link" href="/student.html#review-status">Review</a>
+          <a class="radic-nav-link" href="/student.html#progress-status">Progress</a>
+          <a class="radic-nav-link" href="/student.html#profile-status">Profile</a>
+        </nav>
+        <div class="student-sidebar__footer">
+          <span class="radic-sync-state radic-sync-state--success" id="study-home-sync" role="status"><span class="radic-status-dot" aria-hidden="true"></span>Online</span>
+        </div>
+      </aside>
+      <div>
+        <header class="student-mobile-header">
+          <a class="radic-brand" href="/student.html" aria-label="RadicX student home"><span class="radic-brand__mark" aria-hidden="true">R</span><span>RadicX</span></a>
+          <a class="radic-button radic-button--ghost" href="/student.html">Home</a>
+        </header>
+        <main class="student-main" id="study-main">
+          <div class="student-main__inner m6-study-home">
+            <header class="student-page-header">
+              <div>
+                <p class="radic-eyebrow">Study</p>
+                <h1 class="radic-page-heading">Choose how you want to practise.</h1>
+                <p class="radic-supporting-text">Study for me uses a balanced published-question baseline in M6. Adaptive weakness targeting begins only in M7.</p>
+              </div>
+            </header>
+
+            <section class="m6-continue-panel" id="continue-panel" hidden aria-labelledby="continue-title">
+              <div>
+                <p class="radic-eyebrow">Continue</p>
+                <h2 id="continue-title">Your Study session is ready</h2>
+                <p class="radic-supporting-text" id="continue-copy">Return to the question where you left off.</p>
+              </div>
+              <button class="radic-button radic-button--secondary" type="button" id="continue-study">Continue Study</button>
+            </section>
+
+            <section class="m6-study-primary" aria-labelledby="study-for-me-title">
+              <div>
+                <p class="radic-eyebrow">Recommended starting point</p>
+                <h2 id="study-for-me-title">Study for me</h2>
+                <p class="radic-supporting-text">One tap starts a balanced general Study batch from reviewed questions in your programme. It is intentionally non-adaptive in M6.</p>
+              </div>
+              <button class="radic-button radic-button--primary" type="button" data-start-kind="study_for_me">Study for me</button>
+            </section>
+
+            <div class="m6-study-choice-grid">
+              <section class="m6-study-choice" aria-labelledby="subject-practice-title">
+                <div>
+                  <p class="radic-eyebrow">Subject</p>
+                  <h2 id="subject-practice-title">Subject Practice</h2>
+                  <p class="radic-supporting-text">Focus on one active subject in your selected programme.</p>
+                </div>
+                <label class="radic-field" for="subject-select"><span class="radic-label">Subject</span><select class="radic-select" id="subject-select"><option value="">Choose a subject</option></select></label>
+                <button class="radic-button radic-button--secondary" type="button" id="start-subject" disabled>Start Subject Practice</button>
+              </section>
+
+              <section class="m6-study-choice" aria-labelledby="topic-practice-title">
+                <div>
+                  <p class="radic-eyebrow">Topic</p>
+                  <h2 id="topic-practice-title">Topic Practice</h2>
+                  <p class="radic-supporting-text">Choose a subject, then an active topic.</p>
+                </div>
+                <label class="radic-field" for="topic-subject-select"><span class="radic-label">Subject</span><select class="radic-select" id="topic-subject-select"><option value="">Choose a subject</option></select></label>
+                <label class="radic-field" for="topic-select"><span class="radic-label">Topic</span><select class="radic-select" id="topic-select" disabled><option value="">Choose a topic</option></select></label>
+                <button class="radic-button radic-button--secondary" type="button" id="start-topic" disabled>Start Topic Practice</button>
+              </section>
+
+              <section class="m6-study-choice" aria-labelledby="quick-practice-title">
+                <div>
+                  <p class="radic-eyebrow">Quick Practice</p>
+                  <h2 id="quick-practice-title">Pick a short session</h2>
+                  <p class="radic-supporting-text">5 for a quick sprint, 10 for short practice, or 20 for a deeper practice block.</p>
+                </div>
+                <div class="m6-quick-actions" role="group" aria-label="Quick Practice size">
+                  <button class="radic-button radic-button--secondary" type="button" data-quick-count="5">5 questions</button>
+                  <button class="radic-button radic-button--secondary" type="button" data-quick-count="10">10 questions</button>
+                  <button class="radic-button radic-button--secondary" type="button" data-quick-count="20">20 questions</button>
+                </div>
+              </section>
+
+              <section class="m6-study-choice" aria-labelledby="bookmarks-title">
+                <div>
+                  <p class="radic-eyebrow">Saved questions</p>
+                  <h2 id="bookmarks-title">Bookmarks</h2>
+                  <p class="radic-supporting-text">Practise questions you have bookmarked and that remain eligible for Study.</p>
+                </div>
+                <button class="radic-button radic-button--secondary" type="button" data-start-kind="bookmarks">Study Bookmarks</button>
+              </section>
+
+              <section class="m6-study-choice m6-study-choice--disabled" aria-labelledby="weak-areas-title" aria-disabled="true">
+                <div>
+                  <p class="radic-eyebrow">Later learning evidence</p>
+                  <h2 id="weak-areas-title">Weak Areas</h2>
+                  <p class="radic-supporting-text">Unavailable in M6. M7 will calculate weak areas only after sufficient learning evidence exists.</p>
+                </div>
+                <button class="radic-button radic-button--secondary" type="button" disabled>Not available yet</button>
+              </section>
+            </div>
+
+            <div class="m6-study-message" id="study-home-message" role="status" aria-live="polite" hidden></div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <nav class="student-bottom-nav m5-protected" aria-label="Mobile student navigation">
+      <a href="/student.html"><span class="student-bottom-nav__glyph" aria-hidden="true">H</span><span>Home</span></a>
+      <a href="/study.html" aria-current="page"><span class="student-bottom-nav__glyph" aria-hidden="true">S</span><span>Study</span></a>
+      <a href="/exam.html"><span class="student-bottom-nav__glyph" aria-hidden="true">E</span><span>Exam</span></a>
+      <a href="/student.html#review-status"><span class="student-bottom-nav__glyph" aria-hidden="true">R</span><span>Review</span></a>
+      <a href="/student.html#progress-status"><span class="student-bottom-nav__glyph" aria-hidden="true">P</span><span>Progress</span></a>
+    </nav>
+    <script src="/assets/runtime-config.js"></script>
+    <script type="module" src="/assets/m6/study-home.js"></script>
+  </body>
+</html>

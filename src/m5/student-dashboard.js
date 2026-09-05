@@ -15,6 +15,14 @@ function formatDate(value) {
   return new Intl.DateTimeFormat('en', { dateStyle: 'long', timeZone: 'UTC' }).format(parsed);
 }
 
+function sessionLabel(session) {
+  if (!session) return 'No resumable session found';
+  if (session.mode === 'study' && session.study_kind) {
+    return `Study active · question ${session.current_position ?? 1} of ${session.target_question_count ?? 'current batch'}`;
+  }
+  return `${session.status} · ${session.mode}`;
+}
+
 async function main() {
   document.body.dataset.authState = 'loading';
   let client;
@@ -53,7 +61,10 @@ async function main() {
   text('next-action-title', model.nextAction.title);
   text('next-action-body', model.nextAction.body);
   text('next-action-label', model.nextAction.label);
-  text('session-state', resumableSession ? `${resumableSession.status} · ${resumableSession.mode}` : 'No resumable session found');
+  text('session-state', sessionLabel(resumableSession));
+
+  const action = document.getElementById('next-action-label');
+  if (action) action.href = model.nextAction.href ?? '/study.html';
 
   document.body.dataset.authState = 'authenticated';
 
@@ -75,6 +86,6 @@ async function main() {
 
 main().catch((error) => {
   document.body.dataset.authState = 'anonymous';
-  console.error('M5 dashboard initialization failed', error);
+  console.error('Student dashboard initialization failed', error);
   window.location.replace('/login.html?next=/student.html');
 });

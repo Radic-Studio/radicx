@@ -23,4 +23,4 @@ await writeFile(
   'utf8'
 );
 
-console.log('RadicX M5 authentication and onboarding build complete.');
+console.log('RadicX M6 Study Engine build complete.');
