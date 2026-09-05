@@ -96,9 +96,6 @@ security definer
 set search_path = ''
 as $$
 begin
-  if p_session_id is null or p_question_id is null then
-    raise exception using errcode = '22023', message = 'Study session and question IDs are required';
-  end if;
   if p_selected_option is null then
     raise exception using errcode = '22023', message = 'selected option is required';
   end if;
@@ -138,9 +135,6 @@ security definer
 set search_path = ''
 as $$
 begin
-  if p_session_id is null or p_question_id is null then
-    raise exception using errcode = '22023', message = 'Study session and question IDs are required';
-  end if;
   if p_is_bookmarked is null then
     raise exception using errcode = '22023', message = 'bookmark state is required';
   end if;
@@ -175,9 +169,6 @@ security definer
 set search_path = ''
 as $$
 begin
-  if p_session_id is null or p_question_id is null then
-    raise exception using errcode = '22023', message = 'Study session and question IDs are required';
-  end if;
   if p_category is null
      or p_category not in ('incorrect','ambiguous','outdated','typo','other') then
     raise exception using errcode = '22023', message = 'unsupported report category';
@@ -203,9 +194,6 @@ security definer
 set search_path = ''
 as $$
 begin
-  if p_session_id is null then
-    raise exception using errcode = '22023', message = 'Study session ID is required';
-  end if;
   if p_device_version is null then
     raise exception using errcode = '22023', message = 'Study device version is required';
   end if;
